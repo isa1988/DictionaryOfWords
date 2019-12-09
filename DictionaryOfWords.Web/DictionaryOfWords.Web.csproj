@@ -11,4 +11,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\DictionaryOfWords.Core\DictionaryOfWords.Core.csproj" />
+    <ProjectReference Include="..\DictionaryOfWords.DAL\DictionaryOfWords.DAL.csproj" />
+    <ProjectReference Include="..\DictionaryOfWords.Service\DictionaryOfWords.Service.csproj" />
+  </ItemGroup>
+
 </Project>

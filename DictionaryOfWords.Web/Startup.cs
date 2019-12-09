@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DictionaryOfWords.Core.DataBase;
+using DictionaryOfWords.DAL.Data;
+using DictionaryOfWords.DAL.Data.Contracts;
+using DictionaryOfWords.DAL.Data.Init;
+using DictionaryOfWords.DAL.Unit;
+using DictionaryOfWords.DAL.Unit.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,7 +37,26 @@ namespace DictionaryOfWords.Web
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            var connection = Configuration.GetConnectionString("DefaultConnection");
 
+            services.AddDbContext<DbContextDictionaryOfWords>(options => options.UseMySQL(connection));
+            services.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
+            var optionsBuilder = new DbContextOptionsBuilder<DbContextDictionaryOfWords>();
+            optionsBuilder.UseMySQL(connection);
+            services.AddSingleton<IDbContextFactory>(
+                sp => new DbContextFactory(optionsBuilder.Options));
+
+            services.AddDefaultIdentity<User>(options =>
+                {
+                    options.Password.RequireDigit = false;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequiredLength = 3;
+                    //options.Password.RequiredUniqueChars = 1;
+                })
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<DictionaryOfWords.DAL.Data.DbContextDictionaryOfWords>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -52,6 +78,8 @@ namespace DictionaryOfWords.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            new DataDbInitializer().SeedAsync(app).GetAwaiter();
 
             app.UseMvc(routes =>
             {
