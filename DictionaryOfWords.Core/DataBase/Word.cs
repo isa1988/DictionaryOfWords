@@ -13,5 +13,11 @@ namespace DictionaryOfWords.Core.DataBase
         public virtual Language Language { get; set; }
         public virtual List<WordTranslation> WordTranslations { get; set; }
         public virtual List<WordTranslation> WordSources { get; set; }
+
+        public Word()
+        {
+            WordTranslations = new List<WordTranslation>();
+            WordSources = new List<WordTranslation>();
+        }
     }
 }

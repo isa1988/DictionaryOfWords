@@ -3,14 +3,16 @@ using System;
 using DictionaryOfWords.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DictionaryOfWords.DAL.Migrations
 {
     [DbContext(typeof(DbContextDictionaryOfWords))]
-    partial class DbContextModelSnapshot : ModelSnapshot
+    [Migration("20191210042031_editTableWordTranslationForBetterSearch")]
+    partial class editTableWordTranslationForBetterSearch
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

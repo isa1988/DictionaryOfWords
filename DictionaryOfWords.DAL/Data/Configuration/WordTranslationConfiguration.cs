@@ -22,6 +22,11 @@ namespace DictionaryOfWords.DAL.Data.Configuration
                 .WithMany(t => t.WordSources)
                 .HasForeignKey(p => p.WordSourceId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(p => p.LanguageWord)
+                .WithMany(t => t.WordTranslations)
+                .HasForeignKey(p => p.LanguageId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
