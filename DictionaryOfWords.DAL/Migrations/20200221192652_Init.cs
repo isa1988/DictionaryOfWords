@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DictionaryOfWords.DAL.Migrations
@@ -13,7 +12,7 @@ namespace DictionaryOfWords.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     Name = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true)
@@ -28,23 +27,23 @@ namespace DictionaryOfWords.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
                     PasswordHash = table.Column<string>(nullable: true),
                     SecurityStamp = table.Column<string>(nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
+                    PhoneNumberConfirmed = table.Column<short>(nullable: false),
+                    TwoFactorEnabled = table.Column<short>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
                     Login = table.Column<string>(nullable: true),
-                    FullName = table.Column<string>(nullable: true)
+                    FullName = table.Column<string>(nullable: true),
+                    LockoutEnabled = table.Column<int>(nullable: false),
+                    EmailConfirmed = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -56,7 +55,7 @@ namespace DictionaryOfWords.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     Name = table.Column<string>(maxLength: 100, nullable: false)
                 },
                 constraints: table =>
@@ -69,7 +68,7 @@ namespace DictionaryOfWords.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     RoleId = table.Column<int>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -90,7 +89,7 @@ namespace DictionaryOfWords.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     UserId = table.Column<int>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -175,7 +174,7 @@ namespace DictionaryOfWords.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     Name = table.Column<string>(maxLength: 100, nullable: false),
                     LanguageId = table.Column<int>(nullable: false),
                     Pronunciation = table.Column<string>(nullable: true)
@@ -196,13 +195,20 @@ namespace DictionaryOfWords.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySQL:AutoIncrement", true),
                     WordSourceId = table.Column<int>(nullable: false),
-                    WordTranslationId = table.Column<int>(nullable: false)
+                    WordTranslationId = table.Column<int>(nullable: false),
+                    LanguageId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WordTranslations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WordTranslations_Languages_LanguageId",
+                        column: x => x.LanguageId,
+                        principalTable: "Languages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_WordTranslations_Words_WordSourceId",
                         column: x => x.WordSourceId,
@@ -226,8 +232,7 @@ namespace DictionaryOfWords.DAL.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -253,12 +258,16 @@ namespace DictionaryOfWords.DAL.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Words_LanguageId",
                 table: "Words",
+                column: "LanguageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WordTranslations_LanguageId",
+                table: "WordTranslations",
                 column: "LanguageId");
 
             migrationBuilder.CreateIndex(

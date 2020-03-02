@@ -39,10 +39,10 @@ namespace DictionaryOfWords.Web
             });
             var connection = Configuration.GetConnectionString("DefaultConnection");
 
-            services.AddDbContext<DbContextDictionaryOfWords>(options => options.UseMySQL(connection));
+            services.AddDbContext<DbContextDictionaryOfWords>(options => options.UseMySql(connection));
             services.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
             var optionsBuilder = new DbContextOptionsBuilder<DbContextDictionaryOfWords>();
-            optionsBuilder.UseMySQL(connection);
+            optionsBuilder.UseMySql(connection);
             services.AddSingleton<IDbContextFactory>(
                 sp => new DbContextFactory(optionsBuilder.Options));
 
@@ -78,9 +78,8 @@ namespace DictionaryOfWords.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
+            
             new DataDbInitializer().SeedAsync(app).GetAwaiter();
-
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

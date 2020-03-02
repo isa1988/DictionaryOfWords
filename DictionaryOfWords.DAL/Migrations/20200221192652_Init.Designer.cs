@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DictionaryOfWords.DAL.Migrations
 {
     [DbContext(typeof(DbContextDictionaryOfWords))]
-    [Migration("20191210042031_editTableWordTranslationForBetterSearch")]
-    partial class editTableWordTranslationForBetterSearch
+    [Migration("20200221192652_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -68,11 +68,11 @@ namespace DictionaryOfWords.DAL.Migrations
                     b.Property<string>("Email")
                         .HasMaxLength(256);
 
-                    b.Property<bool>("EmailConfirmed");
+                    b.Property<int>("EmailConfirmed");
 
                     b.Property<string>("FullName");
 
-                    b.Property<bool>("LockoutEnabled");
+                    b.Property<int>("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
 

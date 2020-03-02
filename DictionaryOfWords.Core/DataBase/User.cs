@@ -15,5 +15,8 @@ namespace DictionaryOfWords.Core.DataBase
         /// ФИО
         /// </summary>
         public string FullName { get; set; }
+
+        //public short LockoutEnabled { get; set; }
+        //public short EmailConfirmed { get; set; }
     }
 }

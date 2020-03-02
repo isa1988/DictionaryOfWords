@@ -29,6 +29,8 @@ namespace DictionaryOfWords.DAL.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new LanguageConfiguration());
             modelBuilder.ApplyConfiguration(new WordConfiguration());
             modelBuilder.ApplyConfiguration(new WordTranslationConfiguration());

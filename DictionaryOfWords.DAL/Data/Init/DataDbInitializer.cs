@@ -30,8 +30,8 @@ namespace DictionaryOfWords.DAL.Data.Init
                     Role roleUser = new Role("User");
                     await roleManager.CreateAsync(roleUser);
                 }
-
                 User admin = await userManager.FindByNameAsync("admin");
+
                 if (admin == null)
                 {
                     var user = new User
@@ -42,6 +42,7 @@ namespace DictionaryOfWords.DAL.Data.Init
                         FullName = "Админ"
                         //ImagePath = "images/admin.png"
                     };
+
                     var result = await userManager.CreateAsync(user, "123456");
                     if (result.Succeeded)
                     {
@@ -70,3 +71,4 @@ namespace DictionaryOfWords.DAL.Data.Init
         }
     }
 }
+

@@ -12,6 +12,7 @@ namespace DictionaryOfWords.DAL.Data.Configuration
         public void Configure(EntityTypeBuilder<WordTranslation> builder)
         {
             builder.HasKey(p => p.Id);
+            builder.Property(p => p.Id).ValueGeneratedOnAdd();
 
             builder.HasOne(p => p.WordTranslationValue)
                 .WithMany(t => t.WordTranslations)
