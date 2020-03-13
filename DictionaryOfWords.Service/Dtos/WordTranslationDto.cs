@@ -10,7 +10,9 @@ namespace DictionaryOfWords.Service.Dtos
         public virtual WordDto WordSource { get; set; }
         public int WordTranslationId { get; set; }
         public virtual WordDto WordTranslationValue { get; set; }
-        public int LanguageId { get; set; }
-        public virtual LanguageDto LanguageWord { get; set; }
+        public int LanguageFromId { get; set; }
+        public virtual LanguageDto LanguageFromWord { get; set; }
+        public int LanguageToId { get; set; }
+        public virtual LanguageDto LanguageToWord { get; set; }
     }
 }

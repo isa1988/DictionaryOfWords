@@ -24,9 +24,14 @@ namespace DictionaryOfWords.DAL.Data.Configuration
                 .HasForeignKey(p => p.WordSourceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(p => p.LanguageWord)
-                .WithMany(t => t.WordTranslations)
-                .HasForeignKey(p => p.LanguageId)
+            builder.HasOne(p => p.LanguageFromWord)
+                .WithMany(t => t.WordFromTranslations)
+                .HasForeignKey(p => p.LanguageFromId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(p => p.LanguageToWord)
+                .WithMany(t => t.WordToTranslations)
+                .HasForeignKey(p => p.LanguageToId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

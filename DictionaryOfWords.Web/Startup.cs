@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.DAL.Data;
 using DictionaryOfWords.DAL.Data.Contracts;
 using DictionaryOfWords.DAL.Data.Init;
 using DictionaryOfWords.DAL.Unit;
 using DictionaryOfWords.DAL.Unit.Contracts;
+using DictionaryOfWords.Service.Services;
+using DictionaryOfWords.Service.Services.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -57,6 +60,13 @@ namespace DictionaryOfWords.Web
                 })
                 .AddRoles<Role>()
                 .AddEntityFrameworkStores<DictionaryOfWords.DAL.Data.DbContextDictionaryOfWords>();
+
+            services.AddScoped<ILanguageService, LanguageService>();
+            Mapper.Initialize(config =>
+            {
+                config.AddProfile(new DictionaryOfWords.Web.MappingProfile());
+                config.AddProfile(new DictionaryOfWords.Service.MappingProfile());
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

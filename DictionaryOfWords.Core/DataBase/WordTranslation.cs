@@ -10,7 +10,9 @@ namespace DictionaryOfWords.Core.DataBase
         public virtual Word WordSource { get; set; }
         public int WordTranslationId { get; set; }
         public virtual Word WordTranslationValue { get; set; }
-        public int LanguageId { get; set; }
-        public virtual Language LanguageWord { get; set; }
+        public int LanguageFromId { get; set; }
+        public virtual Language LanguageFromWord { get; set; }
+        public int LanguageToId { get; set; }
+        public virtual Language LanguageToWord { get; set; }
     }
 }

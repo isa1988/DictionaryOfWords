@@ -8,13 +8,15 @@ namespace DictionaryOfWords.Core.DataBase
     {
         public string Name { get; set; }
         public virtual List<Word> Words {get; set; }
-        public virtual List<WordTranslation> WordTranslations { get; set; }
+        public virtual List<WordTranslation> WordFromTranslations { get; set; }
+        public virtual List<WordTranslation> WordToTranslations { get; set; }
 
         public Language()
         {
             Name = string.Empty;
             Words = new List<Word>();
-            WordTranslations = new List<WordTranslation>();
+            WordFromTranslations = new List<WordTranslation>();
+            WordToTranslations = new List<WordTranslation>();
         }
     }
 }
