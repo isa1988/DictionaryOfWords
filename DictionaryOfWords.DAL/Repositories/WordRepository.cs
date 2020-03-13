@@ -1,6 +1,7 @@
 ﻿using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.Core.Repositories;
 using DictionaryOfWords.DAL.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +14,29 @@ namespace DictionaryOfWords.DAL.Repositories
         public WordRepository(DbContextDictionaryOfWords contextDictionaryOfWords) : base(contextDictionaryOfWords)
         {
             DbSet = contextDictionaryOfWords.Words;
+            IQueryable<Word> includeWord = GetInclude();
+            base.DbSetInclude = includeWord;
         }
 
-        public bool IsNameReplay(string name)
+        public bool IsNameReplay(string name, int languageId)
         {
-            return DbSet.Any(x => x.Name.ToLower() == name.ToLower());
+            return DbSet.Any(x => x.Name.ToLower() == name.ToLower() && x.LanguageId == languageId);
+        }
+        
+        public List<Word> GetWordsForLanguage(int languageId)
+        {
+            return GetInclude().Where(x => x.LanguageId == languageId).ToList();
+        }
+        
+        public List<Word> GetWordsInListWords(List<string> words)
+        {
+            if (words == null || words.Count == 0) return new List<Word>();
+            return GetInclude().Where(x => words.Any(n => n.ToLower() == x.Name.ToLower())).ToList();
         }
 
-        public override IEnumerable<Word> GetAll()
+        private IQueryable<Word> GetInclude()
         {
-            return DbSet.ToList();
-        }
-
-        public override Word GetById(int id)
-        {
-            return DbSet.FirstOrDefault(p => p.Id == id);
+            return DbSet.Include(x => x.Language);
         }
     }
 }

@@ -75,11 +75,11 @@ namespace DictionaryOfWords.Service.Services
             }
         }
 
-        public List<TDto> GetAll()
+        public virtual List<TDto> GetAll()
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                List<TBase> valueBaseList = unitOfWork.GetRepository<TBase>().GetAll().ToList();
+                List<TBase> valueBaseList = unitOfWork.GetRepository<TBase>().GetAll();
                 if (valueBaseList == null || valueBaseList.Count == 0)
                 {
                     return new List<TDto>();
@@ -89,7 +89,7 @@ namespace DictionaryOfWords.Service.Services
             }
         }
 
-        public TDto GetByID(int id)
+        public virtual TDto GetByID(int id)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {

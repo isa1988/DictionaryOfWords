@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DictionaryOfWords.Web.Controllers
 {
-    public class LanguageController : Controller
+    public class LanguageController : BaseController
     {
         private readonly ILanguageService _service;
 
@@ -122,16 +122,6 @@ namespace DictionaryOfWords.Web.Controllers
                 request.Error = GetError(result.Errors);
                 return View(request);
             }
-        }
-
-        private string GetError(List<string> errors)
-        {
-            string error = string.Empty;
-            for (int i = 0; i < errors.Count; i++)
-            {
-                error += errors[i] + Environment.NewLine;
-            }
-            return error;
         }
     }
 }

@@ -15,6 +15,8 @@ namespace DictionaryOfWords.DAL.Repositories
         protected DbContextDictionaryOfWords ContextDictionaryOfWords;
         protected DbSet<T> DbSet { get; set; }
 
+        protected IQueryable<T> DbSetInclude { get; set; }
+
         public Repository(DbContextDictionaryOfWords contextDictionaryOfWords)
         {
             ContextDictionaryOfWords = contextDictionaryOfWords;
@@ -27,20 +29,24 @@ namespace DictionaryOfWords.DAL.Repositories
 
             return entry.Entity;
         }
-
-        public virtual IEnumerable<T> GetAll()
+        private IQueryable<T> GetInclude()
         {
-            return DbSet.ToList();
+            return DbSetInclude != null ? DbSetInclude : DbSet;
+        }
+
+        public virtual List<T> GetAll()
+        {
+            return GetInclude().ToList();
         }
         //identity
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<List<T>> GetAllAsync()
         {
-            return await DbSet.ToListAsync();
+            return await GetInclude().ToListAsync();
         }
 
         public virtual T GetById(int id)
         {
-            return Queryable.FirstOrDefault(DbSet, e => e.Id == id);
+            return GetInclude().FirstOrDefault(x => x.Id == id);
         }
 
         public void Update(T entity)

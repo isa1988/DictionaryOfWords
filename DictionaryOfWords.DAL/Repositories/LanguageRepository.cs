@@ -21,14 +21,5 @@ namespace DictionaryOfWords.DAL.Repositories
             return DbSet.Any(x => x.Name.ToLower() == name.ToLower());
         }
 
-        public override IEnumerable<Language> GetAll()
-        {
-            return DbSet.ToList();
-        }
-
-        public override Language GetById(int id)
-        {
-            return DbSet.FirstOrDefault(p => p.Id == id);
-        }
     }
 }

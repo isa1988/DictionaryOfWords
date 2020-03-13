@@ -62,6 +62,7 @@ namespace DictionaryOfWords.Web
                 .AddEntityFrameworkStores<DictionaryOfWords.DAL.Data.DbContextDictionaryOfWords>();
 
             services.AddScoped<ILanguageService, LanguageService>();
+            services.AddScoped<IWordService, WordService>();
             Mapper.Initialize(config =>
             {
                 config.AddProfile(new DictionaryOfWords.Web.MappingProfile());

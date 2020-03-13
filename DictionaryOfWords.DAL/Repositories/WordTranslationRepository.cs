@@ -1,6 +1,7 @@
 ﻿using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.Core.Repositories;
 using DictionaryOfWords.DAL.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +16,9 @@ namespace DictionaryOfWords.DAL.Repositories
             DbSet = contextDictionaryOfWords.WordTranslations;
         }
 
-        public override IEnumerable<WordTranslation> GetAll()
+        private IQueryable<WordTranslation> GetInclude()
         {
-            return DbSet.ToList();
-        }
-
-        public override WordTranslation GetById(int id)
-        {
-            return DbSet.FirstOrDefault(p => p.Id == id);
+            return DbSet.Include(x => x.LanguageFromWord).Include(x => x.WordSource).Include(x => x.LanguageToWord).Include(x => x.WordTranslationValue);
         }
     }
 }

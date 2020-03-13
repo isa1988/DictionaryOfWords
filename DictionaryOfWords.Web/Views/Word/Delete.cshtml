@@ -1,13 +1,14 @@
-﻿@model DictionaryOfWords.Web.Models.LanguageModel
+﻿@model DictionaryOfWords.Web.Models.WordModel
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Удалить язык</h1>
+<h1>Удаление</h1>
 
-<h3>Вы действительно хотите удалить?</h3>
+<h3>Вы действительно уверены?</h3>
 <div>
+    <h4>WordModel</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -15,6 +16,12 @@
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LanguageName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LanguageName)
         </dd>
     </dl>
 
@@ -27,7 +34,7 @@
     }
 
     <form asp-action="Delete">
-        <input type="submit" value="Удалить" class="btn btn-danger" /> |
-        <a asp-action="Index">Назад</a>
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
     </form>
 </div>

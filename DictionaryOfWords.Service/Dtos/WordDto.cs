@@ -10,6 +10,10 @@ namespace DictionaryOfWords.Service.Dtos
 
         public string Name { get; set; }
 
+        public string Pronunciation { get; set; }
+
+        public int LanguageId { get; set; }
+
         public LanguageDto Language { get; set; }
 
         public virtual List<WordTranslationDto> WordTranslations { get; set; }

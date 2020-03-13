@@ -52,7 +52,6 @@ namespace DictionaryOfWords.Service.Services
                     {
                         return EntityOperationResult<Language>.Failure().AddError("Не найдена запись");
                     }
-                    //language = Mapper.Map<Language>(basketEditDto);
                     language.Name = basketEditDto.Name;
                     unitOfWork.Language.Update(language);
                     await unitOfWork.CompleteAsync();
