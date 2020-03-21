@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DictionaryOfWords.Core\DictionaryOfWords.Core.csproj" />
     <ProjectReference Include="..\DictionaryOfWords.DAL\DictionaryOfWords.DAL.csproj" />
+    <ProjectReference Include="..\DictionaryOfWords.SignalR\DictionaryOfWords.SignalR.csproj" />
   </ItemGroup>
 
 </Project>

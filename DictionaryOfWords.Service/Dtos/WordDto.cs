@@ -16,8 +16,10 @@ namespace DictionaryOfWords.Service.Dtos
 
         public LanguageDto Language { get; set; }
 
-        public virtual List<WordTranslationDto> WordTranslations { get; set; }
-        public virtual List<WordTranslationDto> WordSources { get; set; }
+        public bool IsAdd { get; set; }
+
+        public List<WordTranslationDto> WordTranslations { get; set; }
+        public List<WordTranslationDto> WordSources { get; set; }
 
         public WordDto()
         {

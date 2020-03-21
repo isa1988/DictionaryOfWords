@@ -10,5 +10,8 @@ namespace DictionaryOfWords.Core.Repositories
         bool IsNameReplay(string name, int languageId);
 
         List<Word> GetWordsForLanguage(int languageId);
+        List<Word> GetWordsForTwoLanguage(List<string> words, int firstLanguageId, int secondLanguageId);
+
+        List<Word> GetWordsOfList(List<string> words, int languageId);
     }
 }

@@ -10,6 +10,7 @@ namespace DictionaryOfWords.Service.Dtos
 
         public string Name { get; set; }
 
+        public bool IsAdd { get; set; }
         public LanguageDto()
         {
             Name = string.Empty;

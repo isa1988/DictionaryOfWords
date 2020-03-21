@@ -6,6 +6,7 @@ namespace DictionaryOfWords.Service.Dtos
 {
     public class WordTranslationDto
     {
+        public int Id { get; set; }
         public int WordSourceId { get; set; }
         public virtual WordDto WordSource { get; set; }
         public int WordTranslationId { get; set; }
@@ -14,5 +15,6 @@ namespace DictionaryOfWords.Service.Dtos
         public virtual LanguageDto LanguageFromWord { get; set; }
         public int LanguageToId { get; set; }
         public virtual LanguageDto LanguageToWord { get; set; }
+        public bool IsAdd { get; set; }
     }
 }

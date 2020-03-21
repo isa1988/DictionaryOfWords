@@ -10,7 +10,7 @@
     <PackageReference Include="AutoMapper" Version="8.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
   </ItemGroup>
 
@@ -19,6 +19,7 @@
     <ProjectReference Include="..\DictionaryOfWords.Core\DictionaryOfWords.Core.csproj" />
     <ProjectReference Include="..\DictionaryOfWords.DAL\DictionaryOfWords.DAL.csproj" />
     <ProjectReference Include="..\DictionaryOfWords.Service\DictionaryOfWords.Service.csproj" />
+    <ProjectReference Include="..\DictionaryOfWords.SignalR\DictionaryOfWords.SignalR.csproj" />
   </ItemGroup>
 
 </Project>

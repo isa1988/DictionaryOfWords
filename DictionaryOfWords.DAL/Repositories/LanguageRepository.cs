@@ -16,6 +16,12 @@ namespace DictionaryOfWords.DAL.Repositories
             DbSet = contextDictionaryOfWords.Languages;
         }
 
+        public List<Language> GetLanguageListOfName(List<string> nameList)
+        {
+            if (nameList == null || nameList.Count == 0) return new List<Language>();
+            return DbSet.Where(x => nameList.Any(n => n.ToLower() == x.Name.ToLower())).ToList();
+        }
+
         public bool IsNameReplay(string name)
         {
             return DbSet.Any(x => x.Name.ToLower() == name.ToLower());

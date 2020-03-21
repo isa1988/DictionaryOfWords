@@ -27,16 +27,23 @@ namespace DictionaryOfWords.DAL.Repositories
         {
             return GetInclude().Where(x => x.LanguageId == languageId).ToList();
         }
-        
-        public List<Word> GetWordsInListWords(List<string> words)
+
+        public List<Word> GetWordsForTwoLanguage(List<string> words, int firstLanguageId, int secondLanguageId)
+        {
+            return GetInclude().Where(x => words.Any(n => n.ToLower() == x.Name.ToLower()) && 
+                                          (x.LanguageId == firstLanguageId || x.LanguageId == secondLanguageId)).ToList();
+        }
+
+        public List<Word> GetWordsOfList(List<string> words, int languageId)
         {
             if (words == null || words.Count == 0) return new List<Word>();
-            return GetInclude().Where(x => words.Any(n => n.ToLower() == x.Name.ToLower())).ToList();
+            return DbSet.Where(x => words.Any(n => n.ToLower() == x.Name.ToLower()) && x.LanguageId == languageId).ToList();
         }
 
         private IQueryable<Word> GetInclude()
         {
             return DbSet.Include(x => x.Language);
         }
+
     }
 }

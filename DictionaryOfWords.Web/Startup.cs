@@ -11,6 +11,7 @@ using DictionaryOfWords.DAL.Unit;
 using DictionaryOfWords.DAL.Unit.Contracts;
 using DictionaryOfWords.Service.Services;
 using DictionaryOfWords.Service.Services.Contracts;
+using DictionaryOfWords.SignalR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -63,12 +64,15 @@ namespace DictionaryOfWords.Web
 
             services.AddScoped<ILanguageService, LanguageService>();
             services.AddScoped<IWordService, WordService>();
+            services.AddScoped<IMultiAddToBaseService, MultiAddToBaseService>();
+
             Mapper.Initialize(config =>
             {
                 config.AddProfile(new DictionaryOfWords.Web.MappingProfile());
                 config.AddProfile(new DictionaryOfWords.Service.MappingProfile());
             });
 
+            services.AddSignalR();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -97,6 +101,20 @@ namespace DictionaryOfWords.Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ProgressHub>("/prog");
+                routes.MapHub<ChatHub>("/chat");
+                //routes.MapDefaultControllerRoute();
+            });
+
+            /*
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<DictionaryOfWords.SignalR.NoPostHub>("nopo");
+                routes.MapHub<DictionaryOfWords.SignalR.ProgressHub>("prog");
+            });*/
         }
     }
 }

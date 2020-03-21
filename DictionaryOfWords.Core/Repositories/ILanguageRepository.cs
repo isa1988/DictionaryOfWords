@@ -8,5 +8,7 @@ namespace DictionaryOfWords.Core.Repositories
     public interface ILanguageRepository : IRepository<Language>
     {
         bool IsNameReplay(string name);
+
+        List<Language> GetLanguageListOfName(List<string> nameList);
     }
 }

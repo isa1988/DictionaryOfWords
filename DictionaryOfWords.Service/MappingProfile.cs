@@ -13,6 +13,7 @@ namespace DictionaryOfWords.Service
         {
             LanguageMapping();
             WordMapping();
+            WordTranslationMapping();
         }
 
         private void LanguageMapping()
@@ -23,9 +24,11 @@ namespace DictionaryOfWords.Service
                 .ForMember(x => x.WordFromTranslations, p => p.Ignore())
                 .ForMember(x => x.WordToTranslations, p => p.Ignore())
                 .ForMember(x => x.Name, p => p.MapFrom(c => c.Name));
+
             CreateMap<Language, LanguageDto>()
                 .ForMember(x => x.Id, p => p.MapFrom(c => c.Id))
-                .ForMember(x => x.Name, p => p.MapFrom(c => c.Name));
+                .ForMember(x => x.Name, p => p.MapFrom(c => c.Name))
+                .ForMember(x => x.IsAdd, p => p.Ignore());
         }
 
         private void WordMapping()
@@ -47,7 +50,34 @@ namespace DictionaryOfWords.Service
                 .ForMember(x => x.WordTranslations, p => p.MapFrom(c => c.WordTranslations))
                 .ForMember(x => x.LanguageId, p => p.MapFrom(c => c.LanguageId))
                 .ForMember(x => x.Name, p => p.MapFrom(c => c.Name))
-                .ForMember(x => x.Pronunciation, p => p.MapFrom(c => c.Pronunciation));
+                .ForMember(x => x.Pronunciation, p => p.MapFrom(c => c.Pronunciation))
+                .ForMember(x => x.IsAdd, p => p.Ignore());
+        }
+
+        private void WordTranslationMapping()
+        {
+            CreateMap<WordTranslationDto, WordTranslation>()
+                .ForMember(x => x.Id, p => p.Ignore())
+                .ForMember(x => x.LanguageFromId, p => p.MapFrom(c => c.LanguageFromId))
+                .ForMember(x => x.LanguageToId, p => p.MapFrom(c => c.LanguageToId))
+                .ForMember(x => x.WordSourceId, p => p.MapFrom(c => c.WordSourceId))
+                .ForMember(x => x.WordTranslationId, p => p.MapFrom(c => c.WordTranslationId))
+                .ForMember(x => x.LanguageFromWord, p => p.Ignore())
+                .ForMember(x => x.LanguageToWord, p => p.Ignore())
+                .ForMember(x => x.WordSource, p => p.Ignore())
+                .ForMember(x => x.WordTranslationValue, p => p.Ignore());
+
+
+            CreateMap<WordTranslation, WordTranslationDto>()
+                .ForMember(x => x.Id, p => p.MapFrom(c => c.Id))
+                .ForMember(x => x.LanguageFromId, p => p.MapFrom(c => c.LanguageFromId))
+                .ForMember(x => x.LanguageToId, p => p.MapFrom(c => c.LanguageToId))
+                .ForMember(x => x.WordSourceId, p => p.MapFrom(c => c.WordSourceId))
+                .ForMember(x => x.WordTranslationId, p => p.MapFrom(c => c.WordTranslationId))
+                .ForMember(x => x.LanguageFromWord, p => p.MapFrom(c => c.LanguageFromWord))
+                .ForMember(x => x.LanguageToWord, p => p.MapFrom(c => c.LanguageToWord))
+                .ForMember(x => x.WordSource, p => p.MapFrom(c => c.WordSource))
+                .ForMember(x => x.WordTranslationValue, p => p.MapFrom(c => c.WordTranslationValue));
         }
     }
 }
