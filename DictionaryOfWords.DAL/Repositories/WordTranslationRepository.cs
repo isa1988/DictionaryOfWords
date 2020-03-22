@@ -18,23 +18,33 @@ namespace DictionaryOfWords.DAL.Repositories
             base.DbSetInclude = includeWord;
         }
 
-        public List<WordTranslation> GetLanguageListOfName(List<int> wordListId, List<int> languaageListFromId, List<int> languaageListToId)
+        public List<WordTranslation> GetLanguageListOfName(List<int> wordListId, int languaageFrom, int languaageTo)
         {
-            if (wordListId.Count != languaageListFromId.Count || wordListId.Count != languaageListToId.Count ||
-                languaageListFromId.Count != languaageListToId.Count) return new List<WordTranslation>();
-            List<WordAndLanguageID> wordAndLanguages = new List<WordAndLanguageID>();
-            for (int i = 0; i < wordListId.Count; i++)
-            {
-                wordAndLanguages.Add(new WordAndLanguageID(wordListId[i], languaageListFromId[i], languaageListToId[i]));
-            }
-            return DbSet.Where(x => (wordAndLanguages.Any(n => x.WordSourceId == n.WordId && x.LanguageFromId == n.LanguaageFromId && x.LanguageToId == n.LanguaageToId)) ||
-                                  (wordAndLanguages.Any(n => x.WordTranslationId == n.WordId && x.LanguageToId == n.LanguaageFromId && x.LanguageFromId == n.LanguaageToId))).ToList();
+            return DbSet.Where(x => (wordListId.Any(n => x.WordSourceId == n && x.LanguageFromId == languaageFrom && x.LanguageToId == languaageTo)) ||
+                                  (wordListId.Any(n => x.WordTranslationId == n && x.LanguageToId == languaageFrom && x.LanguageFromId == languaageTo))).ToList();
         }
 
-        public bool IsNameReplay(int wordId, int languaageFromId, int languaageToId)
+        public List<WordTranslation> GetWordTranslationsForWord(int wordId)
         {
-            return DbSet.Any(x => (x.WordSourceId == wordId && x.LanguageFromId == languaageFromId && x.LanguageToId == languaageToId) ||
-                                  (x.WordTranslationId == wordId && x.LanguageToId == languaageFromId && x.LanguageFromId == languaageToId));
+            return GetInclude().Where(x => x.WordSourceId == wordId || x.WordTranslationId == wordId).ToList();
+        }
+        public List<WordTranslation> GetWordTranslationsForWord(List<int> wordIdList)
+        {
+            return GetInclude().Where(x => wordIdList.Any(n => x.WordSourceId == n || x.WordTranslationId == n)).ToList();
+        }
+
+        public bool IsNameReplay(int id, int wordId, int wordToId, int languaageFromId, int languaageToId, bool isNew)
+        {
+            if (isNew)
+            {
+                return DbSet.Any(x => (x.WordSourceId == wordId && x.WordTranslationId == wordToId && x.LanguageFromId == languaageFromId && x.LanguageToId == languaageToId) ||
+                                      (x.WordTranslationId == wordId && x.WordSourceId == wordToId && x.LanguageToId == languaageFromId && x.LanguageFromId == languaageToId));
+            }
+            else
+            {
+                return DbSet.Any(x => (x.Id != id && x.WordSourceId == wordId && x.WordTranslationId == wordToId && x.LanguageFromId == languaageFromId && x.LanguageToId == languaageToId) ||
+                                      (x.Id != id && x.WordTranslationId == wordId && x.WordSourceId == wordToId && x.LanguageToId == languaageFromId && x.LanguageFromId == languaageToId));
+            }
         }
 
         private IQueryable<WordTranslation> GetInclude()
@@ -43,19 +53,4 @@ namespace DictionaryOfWords.DAL.Repositories
         }
     }
 
-    class WordAndLanguageID
-    {
-        public WordAndLanguageID(int wordId, int languaageFromId, int languaageToId)
-        {
-            WordId = wordId;
-            LanguaageFromId = languaageFromId;
-            LanguaageToId = languaageToId;
-        }
-
-        public int WordId { get; set; }
-        public int LanguaageFromId { get; set; }
-        public int LanguaageToId { get; set; }
-
-
-    }
 }

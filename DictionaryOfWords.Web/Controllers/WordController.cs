@@ -21,13 +21,25 @@ namespace DictionaryOfWords.Web.Controllers
         }
 
         // GET: Word
-        public ActionResult Index()
+        public IActionResult Index()
         {
             var wordDtoList = _service.GetAll();
-            var wordList = AutoMapper.Mapper.Map<List<WordModel>>(wordDtoList);
-            return View(wordList);
+            var wordList = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtoList);
+            DeleteListModel model = new DeleteListModel();
+            model.WordModels = wordList;
+            return View(model);
         }
-        
+
+        public IActionResult IndexError(DeleteListModel request)
+        {
+            var wordDtoList = _service.GetAll();
+            var wordList = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtoList);
+            DeleteListModel model = new DeleteListModel();
+            model.WordModels = wordList;
+            model.Error = request.Error;
+            return View("Index", model);
+        }
+
         // GET: Word/Create
         public ActionResult Create()
         {
@@ -131,6 +143,23 @@ namespace DictionaryOfWords.Web.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMulti(DeleteListModel request)
+        {
+            List<int> idList = request.WordModels.Where(x => x.IsDelete).Select(x => x.Id).ToList();
+            var result = await _service.DeleteItemAsync(idList);
+
+            if (result.IsSuccess)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                request.Error = GetError(result.Errors);
+                return IndexError(request);
+            }
+        }
 
         private SelectList GetLanguageList()
         {

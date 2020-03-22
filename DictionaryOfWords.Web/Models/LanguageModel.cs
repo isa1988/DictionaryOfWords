@@ -14,5 +14,7 @@ namespace DictionaryOfWords.Web.Models
         [Required]
         [DisplayName("Наименование")]
         public string Name { get; set; }
+
+        public bool IsDelete { get; set; }
     }
 }

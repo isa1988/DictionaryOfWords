@@ -11,8 +11,10 @@ namespace DictionaryOfWords.Core.Repositories
         Task<T> AddAsync(T entity);
         List<T> GetAll();
         Task<List<T>> GetAllAsync();
+        Task<List<T>> GetAllOfIdAsync(List<int> idList);
         T GetById(int id);
         void Update(T entity);
         void Delete(T entity);
+        void DeleteALot(List<T> entity);
     }
 }

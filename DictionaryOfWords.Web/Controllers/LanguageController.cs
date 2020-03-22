@@ -24,9 +24,20 @@ namespace DictionaryOfWords.Web.Controllers
         {
             var languageDtoList = _service.GetAll();
             var languageList = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtoList);
-            return View(languageList);
+            DeleteListModel model = new DeleteListModel();
+            model.LanguageModels = languageList;
+            return View(model);
         }
-        
+
+        public ActionResult IndexError(DeleteListModel request)
+        {
+            var languageDtoList = _service.GetAll();
+            var languageList = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtoList);
+            DeleteListModel model = new DeleteListModel();
+            model.LanguageModels = languageList;
+            model.Error = request.Error;
+            return View("Index", model);
+        }
 
         // GET: Language/Create
         public ActionResult Create()
@@ -121,6 +132,29 @@ namespace DictionaryOfWords.Web.Controllers
             {
                 request.Error = GetError(result.Errors);
                 return View(request);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMulti(DeleteListModel request)
+        {
+            List<int> idList = request.LanguageModels.Where(x => x.IsDelete).Select(x => x.Id).ToList();
+            if (idList == null || idList.Count == 0)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var result = await _service.DeleteItemAsync(idList);
+
+            if (result.IsSuccess)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                request.Error = GetError(result.Errors);
+                return IndexError(request);
             }
         }
     }

@@ -26,7 +26,7 @@ namespace DictionaryOfWords.Service.Services
             _dtoEmpty = empty;
         }
 
-        public abstract string CheckAndGetErrors(TDto value, bool isNew = true);
+        protected abstract string CheckAndGetErrors(TDto value, bool isNew = true);
 
         public async Task<EntityOperationResult<TBase>> CreateItemAsync(TDto basketCreateDto)
         {
@@ -52,6 +52,8 @@ namespace DictionaryOfWords.Service.Services
             }
         }
 
+        protected abstract string CkeckBefforDelet(TBase value);
+
         public async Task<EntityOperationResult<TBase>> DeleteItemAsync(int id)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
@@ -63,10 +65,48 @@ namespace DictionaryOfWords.Service.Services
                     {
                         return EntityOperationResult<TBase>.Failure().AddError("Не найдена запись");
                     }
+                    string error = CkeckBefforDelet(value);
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        return EntityOperationResult<TBase>.Failure().AddError(error);
+                    }
                     unitOfWork.GetRepository<TBase>().Delete(value);
                     await unitOfWork.CompleteAsync();
 
                     return EntityOperationResult<TBase>.Success(value);
+                }
+                catch (Exception ex)
+                {
+                    return EntityOperationResult<TBase>.Failure().AddError(ex.Message);
+                }
+            }
+        }
+
+        protected abstract string CkeckBefforDeleteList(List<TBase> listVal);
+        public async Task<EntityOperationResult<TBase>> DeleteItemAsync(List<int> idList)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                try
+                {
+                    if (idList == null || idList.Count == 0)
+                    {
+                        return EntityOperationResult<TBase>.Failure().AddError("Не задан лист с id");
+                    }
+                    List<TBase> listVal = await unitOfWork.GetRepository<TBase>().GetAllOfIdAsync(idList);
+                    if (listVal == null || listVal.Count == 0)
+                    {
+                        return EntityOperationResult<TBase>.Failure().AddError("Не найдена запись");
+                    }
+                    string error = CkeckBefforDeleteList(listVal);
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        return EntityOperationResult<TBase>.Failure().AddError(error);
+                    }
+                    unitOfWork.GetRepository<TBase>().DeleteALot(listVal);
+                    await unitOfWork.CompleteAsync();
+
+                    return EntityOperationResult<TBase>.Success(listVal[0]);
                 }
                 catch (Exception ex)
                 {

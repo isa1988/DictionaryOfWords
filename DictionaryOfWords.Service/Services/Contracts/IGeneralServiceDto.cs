@@ -22,6 +22,14 @@ namespace DictionaryOfWords.Service.Services.Contracts
         /// <returns></returns>
         Task<EntityOperationResult<TBase>> DeleteItemAsync(int id);
 
+
+        /// <summary>
+        /// Удалить запись из базы несколько записей
+        /// </summary>
+        /// <param name="id">Идентификатор записи</param>
+        /// <returns></returns>
+        Task<EntityOperationResult<TBase>> DeleteItemAsync(List<int> idList);
+
         /// <summary>
         /// Вернуть конкретный объект из базы
         /// </summary>

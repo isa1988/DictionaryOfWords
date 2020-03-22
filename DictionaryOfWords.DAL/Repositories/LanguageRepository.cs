@@ -22,9 +22,16 @@ namespace DictionaryOfWords.DAL.Repositories
             return DbSet.Where(x => nameList.Any(n => n.ToLower() == x.Name.ToLower())).ToList();
         }
 
-        public bool IsNameReplay(string name)
+        public bool IsNameReplay(int id, string name, bool isNew)
         {
-            return DbSet.Any(x => x.Name.ToLower() == name.ToLower());
+            if (isNew)
+            {
+                return DbSet.Any(x => x.Name.Trim().ToLower() == name.Trim().ToLower());
+            }
+            else
+            {
+                return DbSet.Any(x => x.Id != id && x.Name.Trim().ToLower() == name.Trim().ToLower());
+            }
         }
 
     }

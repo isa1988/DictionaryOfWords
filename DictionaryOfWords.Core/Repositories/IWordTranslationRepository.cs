@@ -7,8 +7,11 @@ namespace DictionaryOfWords.Core.Repositories
 {
     public interface IWordTranslationRepository : IRepository<WordTranslation>
     {
-        bool IsNameReplay(int wordId, int languaageFromId, int languaageToId);
+        bool IsNameReplay(int id, int wordId, int wordToId, int languaageFromId, int languaageToId, bool isNew);
 
-        List<WordTranslation> GetLanguageListOfName(List<int> wordListId, List<int> languaageListFromId, List<int> languaageListToId);
+        List<WordTranslation> GetLanguageListOfName(List<int> wordListId, int languaageFrom, int languaageTo);
+
+        List<WordTranslation> GetWordTranslationsForWord(int wordId);
+        List<WordTranslation> GetWordTranslationsForWord(List<int> wordIdList);
     }
 }

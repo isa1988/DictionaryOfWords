@@ -23,7 +23,7 @@ namespace DictionaryOfWords.Service
                 .ForMember(x => x.Words, p => p.Ignore())
                 .ForMember(x => x.WordFromTranslations, p => p.Ignore())
                 .ForMember(x => x.WordToTranslations, p => p.Ignore())
-                .ForMember(x => x.Name, p => p.MapFrom(c => c.Name));
+                .ForMember(x => x.Name, p => p.MapFrom(c => c.Name.Trim()));
 
             CreateMap<Language, LanguageDto>()
                 .ForMember(x => x.Id, p => p.MapFrom(c => c.Id))
@@ -39,7 +39,7 @@ namespace DictionaryOfWords.Service
                 .ForMember(x => x.WordSources, p => p.Ignore())
                 .ForMember(x => x.WordTranslations, p => p.Ignore())
                 .ForMember(x => x.LanguageId, p => p.MapFrom(c => c.LanguageId))
-                .ForMember(x => x.Name, p => p.MapFrom(c => c.Name))
+                .ForMember(x => x.Name, p => p.MapFrom(c => c.Name.Trim()))
                 .ForMember(x => x.Pronunciation, p => p.MapFrom(c => c.Pronunciation));
 
 

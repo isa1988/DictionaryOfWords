@@ -1,42 +1,63 @@
-﻿@model IEnumerable<DictionaryOfWords.Web.Models.WordModel>
+﻿@model DictionaryOfWords.Web.Models.DeleteListModel
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>Слова</h1>
 
 <p>
     <a asp-action="Create">Добавить новое слово</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LanguageName)
-            </th>
-            <th>
-                <p>...</p>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LanguageName)
-            </td>
-            <td>
-                @Html.ActionLink("Редактировать", "Edit", new { id = item.Id }) |
-                @Html.ActionLink("Удалить", "Delete", new { id = item.Id })
-            </td>
-        </tr>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <p>
+        @Model.Error
+    </p>
 }
-    </tbody>
-</table>
+
+<form asp-action="DeleteMulti">
+    <div class="form-group">
+        <button type="button" onclick="ChangeCheckBoxVal()" id="bottunChangeCheckBox">Выделить все</button>
+        <input type="submit" value="Удалить" class="btn btn-primary" />
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <p>...</p>
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WordModels[0].Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WordModels[0].LanguageName)
+                </th>
+                <th>
+                    <p>...</p>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.WordModels.Count; i++)
+            {
+                <tr>
+                    @Html.HiddenFor(modelItem => Model.WordModels[i].Id)
+                    <td>
+                        <input asp-for="@Model.WordModels[i].IsDelete" class="isDelete" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => Model.WordModels[i].Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => Model.WordModels[i].LanguageName)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Редактировать", "Edit", new { id = Model.WordModels[i].Id })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

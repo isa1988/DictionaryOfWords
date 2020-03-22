@@ -18,14 +18,26 @@ namespace DictionaryOfWords.DAL.Repositories
             base.DbSetInclude = includeWord;
         }
 
-        public bool IsNameReplay(string name, int languageId)
+        public bool IsNameReplay(int id, string name, int languageId, bool isNew)
         {
-            return DbSet.Any(x => x.Name.ToLower() == name.ToLower() && x.LanguageId == languageId);
+            if (isNew)
+            {
+                return DbSet.Any(x => x.Name.Trim().ToLower() == name.Trim().ToLower() && x.LanguageId == languageId);
+            }
+            else
+            {
+                return DbSet.Any(x => x.Id != id && x.Name.Trim().ToLower() == name.Trim().ToLower() && x.LanguageId == languageId);
+            }
         }
         
         public List<Word> GetWordsForLanguage(int languageId)
         {
             return GetInclude().Where(x => x.LanguageId == languageId).ToList();
+        }
+        
+        public List<Word> GetWordsForLanguage(List<int> languageIdList)
+        {
+            return GetInclude().Where(x => languageIdList.Any(n => x.LanguageId == n)).ToList();
         }
 
         public List<Word> GetWordsForTwoLanguage(List<string> words, int firstLanguageId, int secondLanguageId)

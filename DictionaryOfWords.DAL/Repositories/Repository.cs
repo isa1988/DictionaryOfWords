@@ -44,6 +44,11 @@ namespace DictionaryOfWords.DAL.Repositories
             return await GetInclude().ToListAsync();
         }
 
+        public async Task<List<T>> GetAllOfIdAsync(List<int> idList)
+        {
+            return await GetInclude().Where(x => idList.Any(n => n == x.Id)).ToListAsync();
+        }
+
         public virtual T GetById(int id)
         {
             return GetInclude().FirstOrDefault(x => x.Id == id);
@@ -57,6 +62,14 @@ namespace DictionaryOfWords.DAL.Repositories
         public void Delete(T entity)
         {
             DbSet.Remove(entity);
+        }
+
+        public void DeleteALot(List<T> entityList)
+        {
+            for (int i = 0; i < entityList.Count; i++)
+            {
+                DbSet.Remove(entityList[i]);
+            }
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using DictionaryOfWords.Service.Dtos;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DictionaryOfWords.SignalR;
 
 namespace DictionaryOfWords.Service.Services.Contracts
 {
@@ -10,13 +12,7 @@ namespace DictionaryOfWords.Service.Services.Contracts
         List<WordTranslationDto> WordTranslations { get; }
         List<WordDto> Words { get; }
         int CountMultiAddToDateBase { get; }
-
-        IEnumerable<int> PreSetMultiAddToDateBase();
-
-        IEnumerable<int> AnalizeDate();
-
-        void MultiAddToDateBase();
-
-        void SetText(string text);
+        
+        void DoGenerate(IHubContext<ProgressHub> progressHubContext, string text);
     }
 }

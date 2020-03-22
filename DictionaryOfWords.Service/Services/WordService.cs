@@ -5,6 +5,7 @@ using DictionaryOfWords.Service.Dtos;
 using DictionaryOfWords.Service.Services.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,32 +15,6 @@ namespace DictionaryOfWords.Service.Services
     {
         public WordService(IUnitOfWorkFactory unitOfWorkFactory) : base(unitOfWorkFactory, new WordDto())
         {
-        }
-
-        public override string CheckAndGetErrors(WordDto value, bool isNew = true)
-        {
-            string errors = string.Empty;
-            if (string.IsNullOrEmpty(value.Name))
-                errors += "Не заполнено имя";
-            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
-            {
-                Language language = unitOfWork.Language.GetById(value.LanguageId);
-                if (language == null)
-                {
-                    errors += errors.Length > 0 ? Environment.NewLine : string.Empty;
-                    errors += "Текущий язык не найден в базе";
-                }
-                if (!isNew)
-                {
-
-                    if (unitOfWork.Word.IsNameReplay(value.Name, value.LanguageId))
-                    {
-                        errors += errors.Length > 0 ? Environment.NewLine : string.Empty;
-                        errors += "Текое слово уже есть в базе";
-                    }
-                }
-            }
-            return errors;
         }
 
         public async Task<EntityOperationResult<Word>> EditItemAsync(WordDto basketEditDto)
@@ -106,7 +81,7 @@ namespace DictionaryOfWords.Service.Services
             }
         }
 
-        public WordDto GetByID(int id)
+        public override WordDto GetByID(int id)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
@@ -116,6 +91,87 @@ namespace DictionaryOfWords.Service.Services
                 return dto;
 
             }
+        }
+
+        protected override string CheckAndGetErrors(WordDto value, bool isNew = true)
+        {
+            string errors = string.Empty;
+            if (string.IsNullOrEmpty(value.Name.Trim()))
+                errors += "Не заполнено имя";
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                Language language = unitOfWork.Language.GetById(value.LanguageId);
+                if (language == null)
+                {
+                    errors += errors.Length > 0 ? Environment.NewLine : string.Empty;
+                    errors += "Текущий язык не найден в базе";
+                }
+                if (string.IsNullOrEmpty(errors) && unitOfWork.Word.IsNameReplay(value.Id, value.Name, value.LanguageId, isNew))
+                {
+                    errors += errors.Length > 0 ? Environment.NewLine : string.Empty;
+                    errors += "Текое слово уже есть в базе";
+                }
+            }
+            return errors;
+        }
+
+        protected override string CkeckBefforDelet(Word value)
+        {
+            string error = string.Empty;
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<WordTranslation> wordTranslations = unitOfWork.WordTranslation.GetWordTranslationsForWord(value.Id);
+                if (wordTranslations?.Count > 0)
+                {
+                    error = "Слово " + value.Name + " имеет перевод:";
+                    for (int i = 0; i < wordTranslations.Count; i++)
+                    {
+                        error += Environment.NewLine;
+                        if (value.Id == wordTranslations[i].WordSource.Id)
+                        {
+                            error += "с языка " + wordTranslations[i].LanguageToWord.Name + "  " + wordTranslations[i].WordTranslationValue.Name;
+                        }
+                        else
+                        {
+                            error += "с языка " + wordTranslations[i].LanguageFromWord.Name + "  " + wordTranslations[i].WordSource.Name;
+                        }
+                    }
+                }
+            }
+            return error;
+        }
+
+        protected override string CkeckBefforDeleteList(List<Word> listVal)
+        {
+            string error = string.Empty;
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<int> idList = listVal.Select(x => x.Id).ToList();
+                List<WordTranslation> wordTranslations = unitOfWork.WordTranslation.GetWordTranslationsForWord(idList);
+                List<WordTranslation> wordTranslationsTemp = new List<WordTranslation>();
+                if (wordTranslations?.Count > 0)
+                {
+                    for (int j = 0; j < listVal.Count; j++)
+                    {
+                        wordTranslationsTemp = wordTranslations.Where(x => x.WordSourceId == listVal[j].Id || x.WordTranslationId == listVal[j].Id).ToList();
+                        if (wordTranslationsTemp == null || wordTranslationsTemp.Count == 0) continue;
+                        error = "Слово " + listVal[j].Name + " имеет перевод:";
+                        for (int i = 0; i < wordTranslationsTemp.Count; i++)
+                        {
+                            error += Environment.NewLine;
+                            if (listVal[j].Id == wordTranslationsTemp[i].WordSource.Id)
+                            {
+                                error += "с языка " + wordTranslationsTemp[i].LanguageToWord.Name + "  " + wordTranslationsTemp[i].WordTranslationValue.Name;
+                            }
+                            else
+                            {
+                                error += "с языка " + wordTranslationsTemp[i].LanguageFromWord.Name + "  " + wordTranslationsTemp[i].WordSource.Name;
+                            }
+                        }
+                    }
+                }
+            }
+            return error;
         }
     }
 }
