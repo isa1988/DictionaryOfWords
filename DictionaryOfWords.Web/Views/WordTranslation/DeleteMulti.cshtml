@@ -1,0 +1,57 @@
+﻿@model DictionaryOfWords.Web.Models.DeleteMultiModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Вы уверены что хотите удалиить выбранные записи?</h1>
+
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <p>
+        @Model.Error;
+    </p>
+}
+
+<form asp-action="DeleteMulti">
+    <input type="submit" value="Подтвердить удаление" class="btn btn-danger" /> |
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].WordFromName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].LanguageFromName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].WordToName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].LanguageToName)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @for (int i = 0; i < Model.WordTranslationModels.Count; i++)
+            {
+                <tr>
+                    @Html.HiddenFor(model => Model.WordTranslationModels[i].Id)
+                    <td>
+                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].WordFromName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].LanguageFromName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].WordToName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].LanguageToName)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

@@ -10,6 +10,7 @@ namespace DictionaryOfWords.Core.Repositories
     {
         Task<T> AddAsync(T entity);
         List<T> GetAll();
+        List<T> GetAllOfPage(int pageNumber, int rowCount);
         Task<List<T>> GetAllAsync();
         Task<List<T>> GetAllOfIdAsync(List<int> idList);
         T GetById(int id);

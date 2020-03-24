@@ -25,16 +25,16 @@ namespace DictionaryOfWords.Web.Controllers
         {
             var wordDtoList = _service.GetAll();
             var wordList = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtoList);
-            DeleteListModel model = new DeleteListModel();
+            ViewListModel model = new ViewListModel();
             model.WordModels = wordList;
             return View(model);
         }
 
-        public IActionResult IndexError(DeleteListModel request)
+        public IActionResult IndexError(ViewListModel request)
         {
             var wordDtoList = _service.GetAll();
             var wordList = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtoList);
-            DeleteListModel model = new DeleteListModel();
+            ViewListModel model = new ViewListModel();
             model.WordModels = wordList;
             model.Error = request.Error;
             return View("Index", model);
@@ -145,7 +145,7 @@ namespace DictionaryOfWords.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteMulti(DeleteListModel request)
+        public async Task<IActionResult> DeleteMulti(ViewListModel request)
         {
             List<int> idList = request.WordModels.Where(x => x.IsDelete).Select(x => x.Id).ToList();
             var result = await _service.DeleteItemAsync(idList);

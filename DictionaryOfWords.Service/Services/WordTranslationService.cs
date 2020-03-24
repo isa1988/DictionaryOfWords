@@ -15,7 +15,20 @@ namespace DictionaryOfWords.Service.Services
         {
 
         }
-        
+
+        public override List<WordTranslationDto> GetAllOfPage(int pageNumber, int rowCount)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<WordTranslation> wordTranslationList = unitOfWork.WordTranslation.GetAllOfPage(pageNumber, rowCount);
+                if (wordTranslationList == null || wordTranslationList.Count == 0)
+                {
+                    return new List<WordTranslationDto>();
+                }
+                List<WordTranslationDto> retList = Mapper.Map<List<WordTranslationDto>>(wordTranslationList);
+                return retList;
+            }
+        }
         public override List<WordTranslationDto> GetAll()
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())

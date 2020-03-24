@@ -1,15 +1,17 @@
-﻿@model DictionaryOfWords.Web.Models.DeleteListModel
+﻿@model DictionaryOfWords.Web.Models.ViewListModel
 
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_LayoutForList.cshtml";
 }
 
 <h1>Переводы слов</h1>
 
+<!--
 <p>
-    <a asp-action="Create">Давыить новый</a>
+    <a asp-action="Create">Добавыить новый</a>
 </p>
-
+-->
+@Html.HiddenFor(model => model.PageCount)
 @if (!string.IsNullOrEmpty(Model.Error))
 {
     <p>
@@ -17,55 +19,150 @@
     </p>
 }
 
-<form asp-action="DeleteMulti">
-    <div class="form-group">
-        <button type="button" onclick="ChangeCheckBoxVal()" id="bottunChangeCheckBox">Выделить все</button>
-        <input type="submit" value="Удалить" class="btn btn-primary" />
-    </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>
-                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].WordFromName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].LanguageFromName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].WordToName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.WordTranslationModels[0].LanguageToName)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.WordTranslationModels.Count; i++)
-            {
-                <tr>
-                    @Html.HiddenFor(modelItem => Model.WordTranslationModels[i].Id)
-                    <td>
-                        <input asp-for="@Model.WordTranslationModels[i].IsDelete" class="isDelete" />
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].WordFromName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].LanguageFromName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].WordToName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => Model.WordTranslationModels[i].LanguageToName)
-                    </td>
-                    <td>
-                        @Html.ActionLink("Редактировать", "Edit", new { id = Model.WordTranslationModels[i].Id })
-                    </td>
-                </tr>
+<div class="form-group">
+    <button type="button" onclick="ChangeCheckBoxVal()" id="bottunChangeCheckBox" class="btn btn-primary btn-success">Выделить все</button>
+    <button onclick="OnDeleteList()" type="button" class="btn btn-primary btn-success">Удалить</button>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>#</th>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.WordTranslationModels[0].WordFromName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WordTranslationModels[0].LanguageFromName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WordTranslationModels[0].WordToName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WordTranslationModels[0].LanguageToName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<button onclick="GetCustomers()" type="button" id="further" class="btn btn-primary btn-success">Далее</button>
+
+
+<script style="text">
+    let currentPage = 0;
+
+    $(function () {
+        GetCustomers();
+        setButtonFurther();
+    });
+
+    function setButtonFurther() {
+        let pageCount = $('#PageCount').val();
+        if (pageCount === 0) {
+            $("#further").hide();
+        }
+        else if (currentPage > pageCount) {
+            $("#further").hide();
+        }
+    }
+
+    function convertTableToJson() {
+        var rows = [];
+        $('table tbody tr').each(function(i, n){
+            var $row = $(n);
+            rows.push({
+                id: $('#WordTranslationModels_' + i + '__Id').val(),
+                isDelete: $('#WordTranslationModels_' + i + '__IsDelete').get(0).checked,
+                wordfromname:    $row.find('td:eq(2)').text(),
+                languagefromname: $row.find('td:eq(3)').text(),
+                wordtoname: $row.find('td:eq(4)').text(),
+                languagetoname:        $row.find('td:eq(5)').text(),
+            });
+        });
+        return rows;
+    }
+
+    function OnDeleteList() {
+        var tableInfo = convertTableToJson();
+        let viewModel = {
+            "wordTranslationModels": tableInfo,
+            isDelete: true
+        };
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(viewModel),
+            url: "@Url.Action("DeleteMultiJson", "WordTranslation")",
+            success: function (result) {
+                location.href = "@Url.Action("Index", "WordTranslation")";
+            },
+            error: function (xhr) {
+                if (xhr.status === 200) {
+                    location.href = "@Url.Action("Index", "WordTranslation")";
+                }
+                else {
+                    alert(xhr);
+                }
             }
-        </tbody>
-    </table>
-</form>
+        });
+    }
+
+    function GetCustomers() {
+        currentPage++;
+        let viewModel = {
+            pagenumber: currentPage
+        };
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify(viewModel),
+            url: "@Url.Action("GetWordTranslationModelOfPage", "WordTranslation")",
+            success: function (result) {
+                OnSuccess(result);
+            }
+        });
+        setButtonFurther();
+    };
+
+    function OnSuccess(data) {
+        let trtable = '';
+        let idNumberIndex = (currentPage - 1) * 20;
+        let numberToUser = idNumberIndex;
+        for (let i = 0; i < data.length; i++) {
+            numberToUser++;
+            trtable += '<tr>';
+            trtable += '<td><input data-val="true" id="WordTranslationModels_' + idNumberIndex +'__Id" type="hidden" value=' + data[i].id + '></td>';
+            trtable += '<td>';
+            trtable += numberToUser;
+            trtable += '</td>';
+            trtable += '<td>';
+            trtable += '<input type="checkbox" class = "isDelete" id="WordTranslationModels_' + idNumberIndex + '__IsDelete">';
+            trtable += '</td>';
+            trtable += '<td>';
+            trtable += data[i].wordfromname;
+            trtable += '</td>';
+            trtable += '<td>';
+            trtable += data[i].languagefromname;
+            trtable += '</td>';
+            trtable += '<td>';
+            trtable += data[i].wordtoname;
+            trtable += '</td>';
+            trtable += '<td>';
+            trtable += data[i].languagetoname;
+            trtable += '</td>';
+            trtable += '<td>';
+            trtable += '<a href="">Редактировать</a>';
+            trtable += '</td>';
+            trtable += '</tr>';
+            idNumberIndex++;
+        }
+        $('.table > tbody:last-child').append(trtable);
+    }
+
+
+</script>

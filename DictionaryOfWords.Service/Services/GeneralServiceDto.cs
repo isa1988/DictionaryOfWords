@@ -36,7 +36,7 @@ namespace DictionaryOfWords.Service.Services
                 return EntityOperationResult<TBase>.Failure().AddError(errors);
             }
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
-            {   
+            {
                 try
                 {
                     TBase value = Mapper.Map<TBase>(basketCreateDto);
@@ -112,6 +112,20 @@ namespace DictionaryOfWords.Service.Services
                 {
                     return EntityOperationResult<TBase>.Failure().AddError(ex.Message);
                 }
+            }
+        }
+
+        public virtual List<TDto> GetAllOfPage(int pageNumber, int rowCount)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<TBase> valueBaseList = unitOfWork.GetRepository<TBase>().GetAllOfPage(pageNumber, rowCount);
+                if (valueBaseList == null || valueBaseList.Count == 0)
+                {
+                    return new List<TDto>();
+                }
+                List<TDto> retList = Mapper.Map<List<TDto>>(valueBaseList);
+                return retList;
             }
         }
 

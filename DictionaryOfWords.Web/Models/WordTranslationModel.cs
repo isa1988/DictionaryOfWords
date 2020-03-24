@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +11,7 @@ namespace DictionaryOfWords.Web.Models
 {
     public class WordTranslationModel : PageInfoModel
     {
+        [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
         
         public SelectList WordFromList { get; set; }
@@ -19,6 +21,7 @@ namespace DictionaryOfWords.Web.Models
         public int WordFromId { get; set; }
         
         [DisplayName("Слово")]
+        [JsonProperty(PropertyName = "wordfromname")]
         public string WordFromName { get; set; }
 
         public SelectList WordToList { get; set; }
@@ -28,6 +31,7 @@ namespace DictionaryOfWords.Web.Models
         public int WordToId { get; set; }
         
         [DisplayName("Слово перевод")]
+        [JsonProperty(PropertyName = "wordtoname")]
         public string WordToName { get; set; }
 
         public SelectList LanguageFromList { get; set; }
@@ -37,6 +41,7 @@ namespace DictionaryOfWords.Web.Models
         public int LanguageFromId { get; set; }
         
         [DisplayName("Язык")]
+        [JsonProperty(PropertyName = "languagefromname")]
         public string LanguageFromName { get; set; }
         
         public SelectList LanguageToList { get; set; }
@@ -46,8 +51,10 @@ namespace DictionaryOfWords.Web.Models
         public int LanguageToId { get; set; }
         
         [DisplayName("Язык перевод")]
+        [JsonProperty(PropertyName = "languagetoname")]
         public string LanguageToName { get; set; }
 
+        [JsonProperty(PropertyName = "isDelete")]
         public bool IsDelete { get; set; }
     }
 }

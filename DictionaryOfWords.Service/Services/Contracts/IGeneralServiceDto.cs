@@ -42,5 +42,12 @@ namespace DictionaryOfWords.Service.Services.Contracts
         /// </summary>
         /// <returns></returns>
         List<TDto> GetAll();
+
+
+        /// <summary>
+        /// Вернуть все записи
+        /// </summary>
+        /// <returns></returns>
+        List<TDto> GetAllOfPage(int pageNumber, int rowCount);
     }
 }

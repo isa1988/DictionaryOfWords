@@ -38,6 +38,15 @@ namespace DictionaryOfWords.DAL.Repositories
         {
             return GetInclude().ToList();
         }
+
+        public virtual List<T> GetAllOfPage(int pageNumber, int rowCount)
+        {
+            int startIndex = (pageNumber - 1) * rowCount;
+            return GetInclude()
+                   .Skip(startIndex)
+                   .Take(rowCount)
+                   .ToList();
+        }
         //identity
         public async Task<List<T>> GetAllAsync()
         {

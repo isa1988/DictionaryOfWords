@@ -2,40 +2,69 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DictionaryOfWords.SignalR;
 using DictionaryOfWords.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using DictionaryOfWords.Service.Services.Contracts;
 using Microsoft.AspNetCore.SignalR;
+using DictionaryOfWords.Service.Dtos;
 
 namespace DictionaryOfWords.Web.Controllers
 {
     public class WordTranslationController : BaseController
     {
-        IHubContext<ProgressHub> _progressHubContext;
+        IHubContext<DictionaryOfWords.SignalR.ProgressHub> _progressHubContext;
         IMultiAddToBaseService _serviceMultiAdd;
         IWordTranslationService _service;
 
-        public IActionResult Index()
+        private ViewListModel GetViewListModel(string error)
         {
             var wordTranslationDtoList = _service.GetAll();
-            var wordTranslationList = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtoList);
-            DeleteListModel model = new DeleteListModel();
-            model.WordTranslationModels = wordTranslationList;
+            var model = new ViewListModel();
+            var wordTranslationModelList = new List<WordTranslationModel>();
+            wordTranslationModelList.Add(new WordTranslationModel());
+            model.WordTranslationModels = wordTranslationModelList;
+            if (wordTranslationDtoList.Count != 0)
+            {
+                double pageCount = wordTranslationDtoList.Count / 20;
+                int pageTotalCount = (int)pageCount;
+                int pageRest = wordTranslationDtoList.Count % 20;
+                if (pageRest != 0)
+                {
+                    pageTotalCount++;
+                }
+                model.PageCount = pageTotalCount;
+            }
+            else
+            {
+                model.PageCount = 0;
+            }
+            model.PageSize = 20;
+            model.RowCount = 20;
+            model.Error = error;
+            return model;
+        }
+
+        public IActionResult Index()
+        {
+            var model = GetViewListModel(string.Empty);
             return View(model);
         }
         
-        public IActionResult IndexError(DeleteListModel request)
+        public IActionResult IndexError(ViewListModel request)
         {
-            var wordTranslationDtoList = _service.GetAll();
-            var wordTranslationList = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtoList);
-            DeleteListModel model = new DeleteListModel();
-            model.WordTranslationModels = wordTranslationList;
-            model.Error = request.Error;
+            var model = GetViewListModel(request.Error);
             return View("Index", model);
         }
 
-        public WordTranslationController(IHubContext<ProgressHub> progressHubContext, IMultiAddToBaseService serviceMultiAdd, IWordTranslationService service)
+        [HttpPost]
+        public ActionResult GetWordTranslationModelOfPage([FromBody] PageInfoNumberModel request)
+        {
+            var wordTranslationDtos = _service.GetAllOfPage(request.PageNumber, 20);
+            var wordTranslationModels = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtos);
+            return Json(wordTranslationModels);
+        }
+
+        public WordTranslationController(IHubContext<DictionaryOfWords.SignalR.ProgressHub> progressHubContext, IMultiAddToBaseService serviceMultiAdd, IWordTranslationService service)
         {
             _progressHubContext = progressHubContext;
             _serviceMultiAdd = serviceMultiAdd;
@@ -56,21 +85,50 @@ namespace DictionaryOfWords.Web.Controllers
             return Ok(request);
         }
 
+        public async Task<IActionResult> DeleteMultiJson([FromBody] ViewListModel request)
+        {
+            List<WordTranslationModel> wordTranslationModels = request.WordTranslationModels.Where(x => x.IsDelete).ToList();
+            if (wordTranslationModels?.Count > 0)
+            {
+                DeleteMultiModel deleteMultiModel = new DeleteMultiModel { WordTranslationModels = wordTranslationModels };
+                return await DeleteMulti(deleteMultiModel);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        public IActionResult DeleteMulti(ViewListModel request)
+        {
+            List<WordTranslationModel> wordTranslationModels = request.WordTranslationModels.Where(x => x.IsDelete).ToList();
+            if (wordTranslationModels?.Count > 0)
+            {
+                DeleteMultiModel deleteMultiModel = new DeleteMultiModel { WordTranslationModels = wordTranslationModels };
+                return View("DeleteMulti", deleteMultiModel);
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteMulti(DeleteListModel request)
+        public async Task<IActionResult> DeleteMulti(DeleteMultiModel request)
         {
-            List<int> idList = request.WordTranslationModels.Where(x => x.IsDelete).Select(x => x.Id).ToList();
+            List<int> idList = request.WordTranslationModels.Select(x => x.Id).ToList();
             var result = await _service.DeleteItemAsync(idList);
 
             if (result.IsSuccess)
             {
-                return RedirectToAction("Index");
+                return Ok();
             }
             else
             {
                 request.Error = GetError(result.Errors);
-                return IndexError(request);
+                return NotFound(request);
             }
         }
     }

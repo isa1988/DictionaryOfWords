@@ -1,8 +1,8 @@
 ﻿function move(percent) {
     let elem = document.getElementById("greenBar");
-    let width = percent;
+    let width = +/\d+/.exec(percent);
     elem.style.width = width + '%';
-    elem.innerHTML = width + '%';
+    elem.innerHTML = percent + '%';
 }
 $(function () {
     const hubConnection = new signalR.HubConnectionBuilder()
