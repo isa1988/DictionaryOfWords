@@ -20,24 +20,52 @@ namespace DictionaryOfWords.Web.Controllers
             _service = service;
         }
 
-        // GET: Word
-        public IActionResult Index()
+        private ViewListModel GetViewListModel(string error)
         {
             var wordDtoList = _service.GetAll();
-            var wordList = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtoList);
-            ViewListModel model = new ViewListModel();
-            model.WordModels = wordList;
+            var model = new ViewListModel();
+            var wordModelList = new List<WordDeleteModel>();
+            wordModelList.Add(new WordDeleteModel());
+            model.WordModels = wordModelList;
+            if (wordDtoList.Count != 0)
+            {
+                double pageCount = wordDtoList.Count / 20;
+                int pageTotalCount = (int)pageCount;
+                int pageRest = wordDtoList.Count % 20;
+                if (pageRest != 0)
+                {
+                    pageTotalCount++;
+                }
+                model.PageCount = pageTotalCount;
+            }
+            else
+            {
+                model.PageCount = 0;
+            }
+            model.PageSize = 20;
+            model.RowCount = 20;
+            model.Error = error;
+            return model;
+        }
+
+        public IActionResult Index()
+        {
+            var model = GetViewListModel(string.Empty);
             return View(model);
         }
 
         public IActionResult IndexError(ViewListModel request)
         {
-            var wordDtoList = _service.GetAll();
-            var wordList = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtoList);
-            ViewListModel model = new ViewListModel();
-            model.WordModels = wordList;
-            model.Error = request.Error;
+            var model = GetViewListModel(request.Error);
             return View("Index", model);
+        }
+
+        [HttpPost]
+        public ActionResult GetWordTranslationModelOfPage([FromBody] PageInfoNumberModel request)
+        {
+            var wordDtos = _service.GetAllOfPage(request.PageNumber, 20);
+            var wordModels = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtos);
+            return Json(wordModels);
         }
 
         // GET: Word/Create
@@ -110,54 +138,37 @@ namespace DictionaryOfWords.Web.Controllers
         }
 
         // GET: Word/Delete/5
-        public ActionResult Delete(int? id)
+        
+        public async Task<IActionResult> DeleteMultiJson([FromBody] ViewListModel request)
         {
-            if (!id.HasValue)
+            List<WordDeleteModel> wordModels = request.WordModels.Where(x => x.IsDelete).ToList();
+            if (wordModels?.Count > 0)
             {
-                return NotFound();
-            }
-
-            var wordDto = _service.GetByID(id.Value);
-
-            var word = AutoMapper.Mapper.Map<WordModel>(wordDto);
-            word.Title = "Удаление";
-
-            return View(word);
-        }
-
-        // POST: Word/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(WordModel request)
-        {
-            var result = await _service.DeleteItemAsync(request.Id);
-
-            if (result.IsSuccess)
-            {
-                return RedirectToAction("Index");
+                DeleteMultiModel deleteMultiModel = new DeleteMultiModel { WordModels = wordModels };
+                return await DeleteMulti(deleteMultiModel);
             }
             else
             {
-                request.Error = GetError(result.Errors);
-                return View(request);
+                return NotFound();
             }
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteMulti(ViewListModel request)
+        public async Task<IActionResult> DeleteMulti(DeleteMultiModel request)
         {
             List<int> idList = request.WordModels.Where(x => x.IsDelete).Select(x => x.Id).ToList();
             var result = await _service.DeleteItemAsync(idList);
 
             if (result.IsSuccess)
             {
-                return RedirectToAction("Index");
+                return Ok();
             }
             else
             {
                 request.Error = GetError(result.Errors);
-                return IndexError(request);
+                return NotFound(request);
             }
         }
 

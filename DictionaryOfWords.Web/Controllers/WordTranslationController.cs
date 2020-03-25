@@ -99,20 +99,6 @@ namespace DictionaryOfWords.Web.Controllers
             }
         }
 
-        public IActionResult DeleteMulti(ViewListModel request)
-        {
-            List<WordTranslationModel> wordTranslationModels = request.WordTranslationModels.Where(x => x.IsDelete).ToList();
-            if (wordTranslationModels?.Count > 0)
-            {
-                DeleteMultiModel deleteMultiModel = new DeleteMultiModel { WordTranslationModels = wordTranslationModels };
-                return View("DeleteMulti", deleteMultiModel);
-            }
-            else
-            {
-                return RedirectToAction("Index");
-            }
-
-        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]

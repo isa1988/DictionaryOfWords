@@ -67,6 +67,20 @@ namespace DictionaryOfWords.Service.Services
             }
         }
 
+        public override List<WordDto> GetAllOfPage(int pageNumber, int rowCount)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<Word> wordList = unitOfWork.Word.GetAllOfPage(pageNumber, rowCount);
+                if (wordList == null || wordList.Count == 0)
+                {
+                    return new List<WordDto>();
+                }
+                List<WordDto> retList = Mapper.Map<List<WordDto>>(wordList);
+                return retList;
+            }
+        }
+
         public override List<WordDto> GetAll()
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
@@ -143,7 +157,7 @@ namespace DictionaryOfWords.Service.Services
 
         protected override string CkeckBefforDeleteList(List<Word> listVal)
         {
-            string error = string.Empty;
+            StringBuilder error = new StringBuilder(string.Empty);
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
                 List<int> idList = listVal.Select(x => x.Id).ToList();
@@ -155,23 +169,24 @@ namespace DictionaryOfWords.Service.Services
                     {
                         wordTranslationsTemp = wordTranslations.Where(x => x.WordSourceId == listVal[j].Id || x.WordTranslationId == listVal[j].Id).ToList();
                         if (wordTranslationsTemp == null || wordTranslationsTemp.Count == 0) continue;
-                        error = "Слово " + listVal[j].Name + " имеет перевод:";
+                        if (j != 0) error.Append(Environment.NewLine);
+                        error.Append("Слово " + listVal[j].Name + " имеет перевод:");
                         for (int i = 0; i < wordTranslationsTemp.Count; i++)
                         {
-                            error += Environment.NewLine;
+                            error.Append(Environment.NewLine);
                             if (listVal[j].Id == wordTranslationsTemp[i].WordSource.Id)
                             {
-                                error += "с языка " + wordTranslationsTemp[i].LanguageToWord.Name + "  " + wordTranslationsTemp[i].WordTranslationValue.Name;
+                                error.Append("с языка " + wordTranslationsTemp[i].LanguageToWord.Name + "  " + wordTranslationsTemp[i].WordTranslationValue.Name);
                             }
                             else
                             {
-                                error += "с языка " + wordTranslationsTemp[i].LanguageFromWord.Name + "  " + wordTranslationsTemp[i].WordSource.Name;
+                                error.Append("с языка " + wordTranslationsTemp[i].LanguageFromWord.Name + "  " + wordTranslationsTemp[i].WordSource.Name);
                             }
                         }
                     }
                 }
             }
-            return error;
+            return error.ToString();
         }
     }
 }

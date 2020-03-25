@@ -20,23 +20,53 @@ namespace DictionaryOfWords.Web.Controllers
         }
 
         // GET: Language
-        public ActionResult Index()
+        private ViewListModel GetViewListModel(string error)
         {
             var languageDtoList = _service.GetAll();
-            var languageList = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtoList);
-            ViewListModel model = new ViewListModel();
-            model.LanguageModels = languageList;
+            var model = new ViewListModel();
+            var languageModelList = new List<LanguageModel>();
+            languageModelList.Add(new LanguageModel());
+            model.LanguageModels = languageModelList;
+            if (languageDtoList.Count != 0)
+            {
+                double pageCount = languageDtoList.Count / 20;
+                int pageTotalCount = (int)pageCount;
+                int pageRest = languageDtoList.Count % 20;
+                if (pageRest != 0)
+                {
+                    pageTotalCount++;
+                }
+                model.PageCount = pageTotalCount;
+            }
+            else
+            {
+                model.PageCount = 0;
+            }
+            model.PageSize = 20;
+            model.RowCount = 20;
+            model.Error = error;
+            return model;
+        }
+
+        public IActionResult Index()
+        {
+            var model = GetViewListModel(string.Empty);
             return View(model);
         }
 
-        public ActionResult IndexError(ViewListModel request)
+        public IActionResult IndexError(ViewListModel request)
         {
-            var languageDtoList = _service.GetAll();
-            var languageList = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtoList);
-            ViewListModel model = new ViewListModel();
-            model.LanguageModels = languageList;
-            model.Error = request.Error;
+            var model = GetViewListModel(request.Error);
             return View("Index", model);
+        }
+
+
+        [HttpPost]
+        public ActionResult GetWordTranslationModelOfPage([FromBody] PageInfoNumberModel request)
+        {
+            var languageDtos = _service.GetAllOfPage(request.PageNumber, 20);
+            var languageModels = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtos);
+            return Json(languageModels);
         }
 
         // GET: Language/Create
@@ -101,60 +131,37 @@ namespace DictionaryOfWords.Web.Controllers
             }
         }
 
-        // GET: Language/Delete/5
-        public ActionResult Delete(int? id)
+
+        public async Task<IActionResult> DeleteMultiJson([FromBody] ViewListModel request)
         {
-            if (!id.HasValue)
+            List<LanguageModel> languageModels = request.LanguageModels.Where(x => x.IsDelete).ToList();
+            if (languageModels?.Count > 0)
             {
-                return NotFound();
-            }
-
-            var languageDto = _service.GetByID(id.Value);
-
-            var language = AutoMapper.Mapper.Map<LanguageModel>(languageDto);
-            language.Title = "Удаление";
-
-            return View(language);
-        }
-
-        // POST: Language/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Delete(LanguageModel request)
-        {
-            var result = await _service.DeleteItemAsync(request.Id);
-
-            if (result.IsSuccess)
-            {
-                return RedirectToAction("Index");
+                DeleteMultiModel deleteMultiModel = new DeleteMultiModel { LanguageModels = languageModels };
+                return await DeleteMulti(deleteMultiModel);
             }
             else
             {
-                request.Error = GetError(result.Errors);
-                return View(request);
+                return NotFound();
             }
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteMulti(ViewListModel request)
+        public async Task<IActionResult> DeleteMulti(DeleteMultiModel request)
         {
             List<int> idList = request.LanguageModels.Where(x => x.IsDelete).Select(x => x.Id).ToList();
-            if (idList == null || idList.Count == 0)
-            {
-                return RedirectToAction("Index");
-            }
-
             var result = await _service.DeleteItemAsync(idList);
 
             if (result.IsSuccess)
             {
-                return RedirectToAction("Index");
+                return Ok();
             }
             else
             {
                 request.Error = GetError(result.Errors);
-                return IndexError(request);
+                return NotFound(request);
             }
         }
     }

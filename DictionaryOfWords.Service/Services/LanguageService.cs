@@ -84,7 +84,7 @@ namespace DictionaryOfWords.Service.Services
 
         protected override string CkeckBefforDeleteList(List<Language> listVal)
         {
-            string error = string.Empty;
+            StringBuilder error = new StringBuilder(string.Empty);
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
                 List<int> idList = listVal.Select(x => x.Id).ToList();
@@ -96,16 +96,17 @@ namespace DictionaryOfWords.Service.Services
                     {
                         wordsTemp = words.Where(x => x.LanguageId == listVal[j].Id).ToList();
                         if (wordsTemp == null || wordsTemp.Count == 0) continue;
-                        error = "Язык " + listVal[j].Name + " имеет слова:";
+                        if (j == 0) error.Append(Environment.NewLine);
+                        error.Append("Язык " + listVal[j].Name + " имеет слова:");
                         for (int i = 0; i < wordsTemp.Count; i++)
                         {
-                            error += Environment.NewLine;
-                            error += wordsTemp[i].Name;
+                            error.Append(Environment.NewLine);
+                            error.Append(wordsTemp[i].Name);
                         }
                     }
                 }
             }
-            return error;
+            return error.ToString();
         }
     }
 }

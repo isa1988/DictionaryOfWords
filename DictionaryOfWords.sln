@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryOfWords.DAL", "Di
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryOfWords.Core", "DictionaryOfWords.Core\DictionaryOfWords.Core.csproj", "{8E43E3A9-6352-4781-BF50-EA066B3D27EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryOfWords.Service", "DictionaryOfWords.Service\DictionaryOfWords.Service.csproj", "{112BBE58-FD4B-429A-87D3-1812A3270225}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryOfWords.SignalR", "DictionaryOfWords.SignalR\DictionaryOfWords.SignalR.csproj", "{EC0418AF-3FDB-41E0-B265-4A8DE8047E33}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryOfWords.Service", "DictionaryOfWords.Service\DictionaryOfWords.Service.csproj", "{112BBE58-FD4B-429A-87D3-1812A3270225}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
