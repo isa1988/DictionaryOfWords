@@ -108,5 +108,24 @@ namespace DictionaryOfWords.Service.Services
             }
             return error.ToString();
         }
+
+        public List<LanguageDto> GetAllFilter(string name)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var languageList = unitOfWork.Language.GetAllFilter(name);
+                if (languageList.Count == 0) return new List<LanguageDto>();
+                return AutoMapper.Mapper.Map<List<LanguageDto>>(languageList);
+            }
+        }
+        public List<LanguageDto> GetAllOfPageFilter(int pageNumber, int rowCount, string name)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var languageList = unitOfWork.Language.GetAllOfPageFilter(pageNumber, rowCount, name);
+                if (languageList.Count == 0) return new List<LanguageDto>();
+                return AutoMapper.Mapper.Map<List<LanguageDto>>(languageList);
+            }
+        }
     }
 }

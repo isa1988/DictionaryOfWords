@@ -102,5 +102,25 @@ namespace DictionaryOfWords.Service.Services
         {
             return string.Empty;
         }
+
+        public List<WordTranslationDto> GetAllFilter(string wordFrom, string languageFrom, string wordTo, string languageTo)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var wordTranslationList = unitOfWork.WordTranslation.GetAllFilter(wordFrom, languageFrom, wordTo, languageTo);
+                if (wordTranslationList.Count == 0) return new List<WordTranslationDto>();
+                return AutoMapper.Mapper.Map<List<WordTranslationDto>>(wordTranslationList);
+            }
+        }
+
+        public List<WordTranslationDto> GetAllOfPageFilter(int pageNumber, int rowCount, string wordFrom, string languageFrom, string wordTo, string languageTo)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var wordTranslationList = unitOfWork.WordTranslation.GetAllOfPageFilter(pageNumber, rowCount, wordFrom, languageFrom, wordTo, languageTo);
+                if (wordTranslationList.Count == 0) return new List<WordTranslationDto>();
+                return AutoMapper.Mapper.Map<List<WordTranslationDto>>(wordTranslationList);
+            }
+        }
     }
 }

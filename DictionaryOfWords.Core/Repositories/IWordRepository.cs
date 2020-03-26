@@ -14,5 +14,8 @@ namespace DictionaryOfWords.Core.Repositories
         List<Word> GetWordsForTwoLanguage(List<string> words, int firstLanguageId, int secondLanguageId);
 
         List<Word> GetWordsOfList(List<string> words, int languageId);
+
+        List<Word> GetAllFilter(string name, string languageName);
+        List<Word> GetAllOfPageFilter(int pageNumber, int rowCount, string name, string languageName);
     }
 }

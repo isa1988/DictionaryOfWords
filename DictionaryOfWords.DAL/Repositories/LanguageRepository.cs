@@ -13,25 +13,54 @@ namespace DictionaryOfWords.DAL.Repositories
     {
         public LanguageRepository(DbContextDictionaryOfWords contextDictionaryOfWords) : base(contextDictionaryOfWords)
         {
-            DbSet = contextDictionaryOfWords.Languages;
+            _dbSet = contextDictionaryOfWords.Languages;
         }
 
         public List<Language> GetLanguageListOfName(List<string> nameList)
         {
             if (nameList == null || nameList.Count == 0) return new List<Language>();
-            return DbSet.Where(x => nameList.Any(n => n.ToLower() == x.Name.ToLower())).ToList();
+            return _dbSet.Where(x => nameList.Any(n => n.ToLower() == x.Name.ToLower())).ToList();
         }
 
         public bool IsNameReplay(int id, string name, bool isNew)
         {
             if (isNew)
             {
-                return DbSet.Any(x => x.Name.Trim().ToLower() == name.Trim().ToLower());
+                return _dbSet.Any(x => x.Name.Trim().ToLower() == name.Trim().ToLower());
             }
             else
             {
-                return DbSet.Any(x => x.Id != id && x.Name.Trim().ToLower() == name.Trim().ToLower());
+                return _dbSet.Any(x => x.Id != id && x.Name.Trim().ToLower() == name.Trim().ToLower());
             }
+        }
+
+        private IQueryable<Language> GetFilter(string name)
+        {
+            IQueryable<Language> languages = _dbSet;
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                languages = languages.Where(x => x.Name.Contains(name));
+            }
+            return languages;
+        }
+
+        public List<Language> GetAllOfPageFilter(int pageNumber, int rowCount, string name)
+        {
+            int startIndex = (pageNumber - 1) * rowCount;
+            var languages = GetFilter(name)
+                        .Skip(startIndex)
+                        .Take(rowCount)
+                        .ToList();
+
+            return languages;
+        }
+
+        public List<Language> GetAllFilter(string name)
+        {
+            var languages = GetFilter(name)
+                        .ToList();
+
+            return languages;
         }
 
     }

@@ -8,7 +8,7 @@ namespace DictionaryOfWords.Web.Models
 {
     public abstract class PagedResultList : PageInfoModel
     {
-        [JsonProperty(PropertyName = "propertyName")]
+        [JsonProperty(PropertyName = "currentPage")]
         public int CurrentPage { get; set; }
 
         [JsonProperty(PropertyName = "pageCount")]

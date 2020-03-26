@@ -10,6 +10,8 @@
     <a asp-action="Create">Добавить новый язык</a>
 </p>
 
+<p id="filterName" hidden>  </p>
+
 <pre id="messageResultOperation"></pre>
 
 @Html.HiddenFor(model => model.PageCount)
@@ -18,6 +20,20 @@
     <button type="button" onclick="ChangeCheckBoxVal()" id="bottunChangeCheckBox" class="btn btn-primary btn-success">Выделить все</button>
     <button onclick="OnDeleteEvenList('@Url.Action("DeleteMultiJson", "Language")', '@Url.Action("Index", "Language")')" type="button" class="btn btn-primary btn-success">Удалить</button>
 </div>
+
+<form asp-action="Index" asp-controller="Language" method="post">
+    <div class="form-group">
+        <div class="form-group">
+            <label asp-for="@Model.LanguageFilter.Name" class="control-label"></label>
+            <input asp-for="@Model.LanguageFilter.Name" class="form-control" />
+            <span asp-validation-for="@Model.LanguageFilter.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Поиск" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -25,7 +41,7 @@
             <th>#</th>
             <th></th>
             <th>
-                @Html.DisplayNameFor(model => model.WordModels[0].Name)
+                @Html.DisplayNameFor(model => model.LanguageModels[0].Name)
             </th>
             <th></th>
         </tr>
@@ -34,13 +50,19 @@
     </tbody>
 </table>
 
-<button onclick="GetCustomers('@Url.Action("GetWordTranslationModelOfPage", "Language")')" type="button" id="further" class="btn btn-primary btn-success">Далее</button>
+<button onclick="GetCustomers('languageFilter', GetFilter(), '@Url.Action("GetLanguageModelOfPage", "Language")')" type="button" id="further" class="btn btn-primary btn-success">Далее</button>
 
 
 <script type="text/javascript">
     $(function () {
-        urlSelect = '@Url.Action("GetWordTranslationModelOfPage", "Language")';
+        $("#filterName").text($("#LanguageFilter_Name").val());
+        GetCustomers('languageFilter', GetFilter(), '@Url.Action("GetLanguageModelOfPage", "Language")');
+        setButtonFurther();
     });
+    
+    function GetFilter() {
+        return { name: $("#filterName").text() };
+    }
 
     function OnDeleteEvenList(urlDelete, urlAfterDelete) {
         var tableInfo = convertTableToJson();

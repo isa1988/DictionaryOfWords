@@ -12,26 +12,26 @@ namespace DictionaryOfWords.DAL.Repositories
 {
     public class Repository<T> : IRepository<T> where T : Entity
     {
-        protected DbContextDictionaryOfWords ContextDictionaryOfWords;
-        protected DbSet<T> DbSet { get; set; }
+        protected DbContextDictionaryOfWords _contextDictionaryOfWords;
+        protected DbSet<T> _dbSet { get; set; }
 
         protected IQueryable<T> DbSetInclude { get; set; }
 
         public Repository(DbContextDictionaryOfWords contextDictionaryOfWords)
         {
-            ContextDictionaryOfWords = contextDictionaryOfWords;
-            DbSet = ContextDictionaryOfWords.Set<T>();
+            _contextDictionaryOfWords = contextDictionaryOfWords;
+            _dbSet = _contextDictionaryOfWords.Set<T>();
         }
 
         public async Task<T> AddAsync(T entity)
         {
-            var entry = await DbSet.AddAsync(entity);
+            var entry = await _dbSet.AddAsync(entity);
 
             return entry.Entity;
         }
         private IQueryable<T> GetInclude()
         {
-            return DbSetInclude != null ? DbSetInclude : DbSet;
+            return DbSetInclude != null ? DbSetInclude : _dbSet;
         }
 
         public virtual List<T> GetAll()
@@ -65,19 +65,19 @@ namespace DictionaryOfWords.DAL.Repositories
 
         public void Update(T entity)
         {
-            DbSet.Update(entity);
+            _dbSet.Update(entity);
         }
 
         public void Delete(T entity)
         {
-            DbSet.Remove(entity);
+            _dbSet.Remove(entity);
         }
 
         public void DeleteALot(List<T> entityList)
         {
             for (int i = 0; i < entityList.Count; i++)
             {
-                DbSet.Remove(entityList[i]);
+                _dbSet.Remove(entityList[i]);
             }
         }
     }

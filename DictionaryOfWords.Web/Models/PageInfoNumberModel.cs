@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Web.Models
 {
-    public class PageInfoNumberModel
+    public class PageInfoNumberModel : PagedResultList
     {
-        [JsonProperty(PropertyName = "pagenumber")]
-        public int PageNumber { get; set; }
-        //[JsonProperty(PropertyName = "row")]
-        //public int Row { get; set; }
+        [JsonProperty(PropertyName = "wordFilter")]
+        public WordFilterModel WordFilter { get; set; }
+
+        [JsonProperty(PropertyName = "languageFilter")]
+        public LanguageFilterModel LanguageFilter { get; set; }
+
+        [JsonProperty(PropertyName = "wordTranslationFilter")]
+        public WordTranslationFilterModel WordTranslationFilter { get; set; }
     }
 }

@@ -14,5 +14,8 @@ namespace DictionaryOfWords.Service.Services.Contracts
         List<WordDto> GetAllWordsForLanguage(int languageId);
 
         List<LanguageDto> GetLanguageList();
+
+        List<WordDto> GetAllFilter(string name, string languageName);
+        List<WordDto> GetAllOfPageFilter(int pageNumber, int rowCount, string name, string langugeName);
     }
 }

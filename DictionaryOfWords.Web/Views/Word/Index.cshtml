@@ -10,6 +10,9 @@
     <a asp-action="Create">Добавить новое слово</a>
 </p>
 
+<p id="filterName" hidden>  </p>
+<p id="filterLanguageName" hidden>  </p>
+
 <pre id="messageResultOperation"></pre>
 
 @Html.HiddenFor(model => model.PageCount)
@@ -18,6 +21,24 @@
     <button type="button" onclick="ChangeCheckBoxVal()" id="bottunChangeCheckBox" class="btn btn-primary btn-success">Выделить все</button>
     <button onclick="OnDeleteEvenList('@Url.Action("DeleteMultiJson", "Word")', '@Url.Action("Index", "Word")')" type="button" class="btn btn-primary btn-success">Удалить</button>
 </div>
+<form asp-action="Index" asp-controller="Word" method="post">
+    <div class="form-group">
+        <div class="form-group">
+            <label asp-for="@Model.WordFilter.Name" class="control-label"></label>
+            <input asp-for="@Model.WordFilter.Name" class="form-control" />
+            <span asp-validation-for="@Model.WordFilter.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="@Model.WordFilter.LanguageName" class="control-label"></label>
+            <input asp-for="@Model.WordFilter.LanguageName" class="form-control" />
+            <span asp-validation-for="@Model.WordFilter.LanguageName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Поиск" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -37,13 +58,20 @@
     </tbody>
 </table>
 
-<button onclick="GetCustomers('@Url.Action("GetWordTranslationModelOfPage", "Word")')" type="button" id="further" class="btn btn-primary btn-success">Далее</button>
+<button onclick="GetCustomers('wordFilter', GetFilter(), '@Url.Action("GetWordModelOfPage", "Word")')" type="button" id="further" class="btn btn-primary btn-success">Далее</button>
 
 
 <script type="text/javascript">
     $(function () {
-        urlSelect = '@Url.Action("GetWordTranslationModelOfPage", "Word")';
+        $("#filterName").text($("#WordFilter_Name").val());
+        $("#filterLanguageName").text($("#WordFilter_LanguageName").val());
+        GetCustomers('wordFilter', GetFilter(), '@Url.Action("GetWordModelOfPage", "Word")');
+        setButtonFurther();
     });
+
+    function GetFilter() {
+        return { name: $("#filterName").text(), language: $("#filterLanguageName").text() };
+    }
 
     function OnDeleteEvenList(urlDelete, urlAfterDelete) {
         var tableInfo = convertTableToJson();
@@ -61,7 +89,7 @@
         for (let i = 0; i < data.length; i++) {
             numberToUser++;
             trtable += '<tr>';
-            trtable += '<td><input data-val="true" id="viewModel_' + idNumberIndex +'__Id" type="hidden" value=' + data[i].id + '></td>';
+            trtable += '<td><input data-val="true" id="viewModel_' + idNumberIndex + '__Id" type="hidden" value=' + data[i].id + '></td>';
             trtable += '<td>';
             trtable += numberToUser;
             trtable += '</td>';
@@ -75,7 +103,7 @@
             trtable += data[i].languageName;
             trtable += '</td>';
             trtable += '<td>';
-            trtable += '<a href=/Word/Edit/' + data[i].id +'>Редактировать</a>';
+            trtable += '<a href=/Word/Edit/' + data[i].id + '>Редактировать</a>';
             trtable += '</td>';
             trtable += '</tr>';
             idNumberIndex++;

@@ -11,13 +11,48 @@
     <a asp-action="Create">Добавыить новый</a>
 </p>
 -->
+
+<p id="filterWordFrom" hidden>  </p>
+<p id="filterLanguageFrom" hidden>  </p>
+<p id="filterWordTo" hidden>  </p>
+<p id="filterLanguageTo" hidden>  </p>
 <pre id="messageResultOperation"></pre>
+
 @Html.HiddenFor(model => model.PageCount)
 
 <div class="form-group">
     <button type="button" onclick="ChangeCheckBoxVal()" id="bottunChangeCheckBox" class="btn btn-primary btn-success">Выделить все</button>
     <button onclick="OnDeleteEvenList('@Url.Action("DeleteMultiJson", "WordTranslation")', '@Url.Action("Index", "WordTranslation")')" type="button" class="btn btn-primary btn-success">Удалить</button>
 </div>
+
+<form asp-action="Index" asp-controller="WordTranslation" method="post">
+    <div class="form-group">
+        <div class="form-group">
+            <label asp-for="@Model.WordTranslationFilter.WordFrom" class="control-label"></label>
+            <input asp-for="@Model.WordTranslationFilter.WordFrom" class="form-control" />
+            <span asp-validation-for="@Model.WordTranslationFilter.WordFrom" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="@Model.WordTranslationFilter.LanguageFrom" class="control-label"></label>
+            <input asp-for="@Model.WordTranslationFilter.LanguageFrom" class="form-control" />
+            <span asp-validation-for="@Model.WordTranslationFilter.LanguageFrom" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="@Model.WordTranslationFilter.WordTo" class="control-label"></label>
+            <input asp-for="@Model.WordTranslationFilter.WordTo" class="form-control" />
+            <span asp-validation-for="@Model.WordTranslationFilter.WordTo" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="@Model.WordTranslationFilter.LanguageTo" class="control-label"></label>
+            <input asp-for="@Model.WordTranslationFilter.LanguageTo" class="form-control" />
+            <span asp-validation-for="@Model.WordTranslationFilter.LanguageTo" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Поиск" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -43,13 +78,27 @@
     </tbody>
 </table>
 
-<button onclick="GetCustomers('@Url.Action("GetWordTranslationModelOfPage", "WordTranslation")')" type="button" id="further" class="btn btn-primary btn-success">Далее</button>
+<button onclick="GetCustomers('wordTranslationFilter', GetFilter(), '@Url.Action("GetDataOfPage", "WordTranslation")')" type="button" id="further" class="btn btn-primary btn-success">Далее</button>
 
 
 <script type="text/javascript">
     $(function () {
-        urlSelect = '@Url.Action("GetWordTranslationModelOfPage", "WordTranslation")';
+        $("#filterWordFrom").text($("#WordTranslationFilter_WordFrom").val());
+        $("#filterLanguageFrom").text($("#WordTranslationFilter_LanguageFrom").val());
+        $("#filterWordTo").text($("#WordTranslationFilter_WordTo").val());
+        $("#filterLanguageTo").text($("#WordTranslationFilter_LanguageTo").val());
+        GetCustomers('wordTranslationFilter', GetFilter(), '@Url.Action("GetDataOfPage", "WordTranslation")');
+        setButtonFurther();
     });
+
+    function GetFilter() {
+        return {
+            wordFrom: $("#filterWordFrom").text(),
+            languageFrom: $("#filterLanguageFrom").text(),
+            wordTo: $("#filterWordTo").text(),
+            languageTo: $("#filterLanguageTo").text()
+        };
+    }
 
     function OnDeleteEvenList(urlDelete, urlAfterDelete) {
         var tableInfo = convertTableToJson();

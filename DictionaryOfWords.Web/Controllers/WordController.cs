@@ -20,9 +20,9 @@ namespace DictionaryOfWords.Web.Controllers
             _service = service;
         }
 
-        private ViewListModel GetViewListModel(string error)
+        private ViewListModel GetViewListModel(string error, string name, string languageName)
         {
-            var wordDtoList = _service.GetAll();
+            var wordDtoList = _service.GetAllFilter(name, languageName);
             var model = new ViewListModel();
             var wordModelList = new List<WordDeleteModel>();
             wordModelList.Add(new WordDeleteModel());
@@ -45,25 +45,35 @@ namespace DictionaryOfWords.Web.Controllers
             model.PageSize = 20;
             model.RowCount = 20;
             model.Error = error;
+            model.WordFilter = new WordFilterModel { LanguageName = languageName, Name = name };
             return model;
         }
 
         public IActionResult Index()
         {
-            var model = GetViewListModel(string.Empty);
+            var model = GetViewListModel(string.Empty, string.Empty, string.Empty);
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Index(ViewListModel request)
+        {
+            var model = GetViewListModel(string.Empty, request.WordFilter?.Name, request.WordFilter?.LanguageName);
             return View(model);
         }
 
         public IActionResult IndexError(ViewListModel request)
         {
-            var model = GetViewListModel(request.Error);
+            var model = GetViewListModel(request.Error, request.WordFilter?.Name, request.WordFilter?.LanguageName);
             return View("Index", model);
         }
 
         [HttpPost]
-        public ActionResult GetWordTranslationModelOfPage([FromBody] PageInfoNumberModel request)
+        public ActionResult GetWordModelOfPage([FromBody] PageInfoNumberModel request)
         {
-            var wordDtos = _service.GetAllOfPage(request.PageNumber, 20);
+            var wordDtos = request.WordFilter == null 
+                          ? _service.GetAllOfPage(request.CurrentPage, 20)
+                          : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.WordFilter.Name, request.WordFilter.LanguageName);
             var wordModels = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtos);
             return Json(wordModels);
         }

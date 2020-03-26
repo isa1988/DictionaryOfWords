@@ -20,8 +20,12 @@ namespace DictionaryOfWords.Web.Controllers
         }
 
         // GET: Language
-        private ViewListModel GetViewListModel(string error)
+        private ViewListModel GetViewListModel(string error, string name)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                name = string.Empty;
+            }
             var languageDtoList = _service.GetAll();
             var model = new ViewListModel();
             var languageModelList = new List<LanguageModel>();
@@ -45,26 +49,36 @@ namespace DictionaryOfWords.Web.Controllers
             model.PageSize = 20;
             model.RowCount = 20;
             model.Error = error;
+            model.LanguageFilter = new LanguageFilterModel { Name = name };
             return model;
         }
 
         public IActionResult Index()
         {
-            var model = GetViewListModel(string.Empty);
+            var model = GetViewListModel(string.Empty, string.Empty);
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Index(ViewListModel request)
+        {
+            var model = GetViewListModel(string.Empty, request.LanguageFilter?.Name);
             return View(model);
         }
 
         public IActionResult IndexError(ViewListModel request)
         {
-            var model = GetViewListModel(request.Error);
+            var model = GetViewListModel(request.Error, request.LanguageFilter?.Name);
             return View("Index", model);
         }
 
 
         [HttpPost]
-        public ActionResult GetWordTranslationModelOfPage([FromBody] PageInfoNumberModel request)
+        public ActionResult GetLanguageModelOfPage([FromBody] PageInfoNumberModel request)
         {
-            var languageDtos = _service.GetAllOfPage(request.PageNumber, 20);
+            var languageDtos = request.LanguageFilter == null
+                          ? _service.GetAllOfPage(request.CurrentPage, 20)
+                          : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.LanguageFilter.Name);
             var languageModels = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtos);
             return Json(languageModels);
         }

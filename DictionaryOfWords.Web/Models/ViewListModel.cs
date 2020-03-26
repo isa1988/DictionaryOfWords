@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Web.Models
 {
-    public class ViewListModel : PagedResultList
+    public class ViewListModel : PageInfoNumberModel
     {
         [JsonProperty(PropertyName = "languageModels")]
         public List<LanguageModel> LanguageModels { get; set; }
@@ -16,7 +16,7 @@ namespace DictionaryOfWords.Web.Models
         
         [JsonProperty(PropertyName = "wordModels")]
         public List<WordDeleteModel> WordModels { get; set; }
-        
+
         [JsonProperty(PropertyName = "isDelete")]
         public bool IsDelete { get; set; }
         

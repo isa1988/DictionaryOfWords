@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using DictionaryOfWords.Service.Services.Contracts;
 using Microsoft.AspNetCore.SignalR;
 using DictionaryOfWords.Service.Dtos;
+using System.Net.Http;
 
 namespace DictionaryOfWords.Web.Controllers
 {
@@ -16,7 +17,7 @@ namespace DictionaryOfWords.Web.Controllers
         IMultiAddToBaseService _serviceMultiAdd;
         IWordTranslationService _service;
 
-        private ViewListModel GetViewListModel(string error)
+        private ViewListModel GetViewListModel(string error, string wordFrom, string languageFrom, string wordTo, string languageTo)
         {
             var wordTranslationDtoList = _service.GetAll();
             var model = new ViewListModel();
@@ -41,27 +42,55 @@ namespace DictionaryOfWords.Web.Controllers
             model.PageSize = 20;
             model.RowCount = 20;
             model.Error = error;
+            model.WordTranslationFilter = new WordTranslationFilterModel { WordFrom = wordFrom, LanguageFrom = languageFrom, WordTo = wordTo, LanguageTo = languageTo };
             return model;
         }
 
+
         public IActionResult Index()
         {
-            var model = GetViewListModel(string.Empty);
+            var model = GetViewListModel(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
             return View(model);
         }
-        
+
+        [HttpPost]
+        public IActionResult Index(ViewListModel request)
+        {
+            var model = GetViewListModel(string.Empty, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
+                                                       request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
+            return View(model);
+        }
+
         public IActionResult IndexError(ViewListModel request)
         {
-            var model = GetViewListModel(request.Error);
+            var model = GetViewListModel(request.Error, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
+                                                       request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
             return View("Index", model);
         }
 
         [HttpPost]
-        public ActionResult GetWordTranslationModelOfPage([FromBody] PageInfoNumberModel request)
+        public ActionResult GetDataOfPage([FromBody] PageInfoNumberModel request)
         {
-            var wordTranslationDtos = _service.GetAllOfPage(request.PageNumber, 20);
+            var wordTranslationDtos = request.WordTranslationFilter == null
+                          ? _service.GetAllOfPage(request.CurrentPage, 20)
+                          : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
+                                                        request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
             var wordTranslationModels = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtos);
             return Json(wordTranslationModels);
+        }
+
+
+        [HttpPost]
+        public ActionResult GetDataOfPage2(HttpRequestMessage request)
+        {
+            var result = request.Content.ReadAsStringAsync().Result;
+            /*var wordTranslationDtos = request.WordTranslationFilter == null
+                          ? _service.GetAllOfPage(request.CurrentPage, 20)
+                          : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
+                                                        request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
+            var wordTranslationModels = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtos);
+            return Json(wordTranslationModels);*/
+            return View();
         }
 
         public WordTranslationController(IHubContext<DictionaryOfWords.SignalR.ProgressHub> progressHubContext, IMultiAddToBaseService serviceMultiAdd, IWordTranslationService service)

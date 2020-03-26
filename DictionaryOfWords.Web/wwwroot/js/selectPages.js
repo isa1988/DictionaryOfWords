@@ -1,26 +1,21 @@
 ﻿let currentPage = 0;
-let urlSelect;
-
-$(function () {
-    GetCustomers(urlSelect);
-    setButtonFurther();
-});
 
 function setButtonFurther() {
-    let pageCount = $('#PageCount').val();
+    let pageCount = +$('#PageCount').val();
     if (pageCount === 0) {
         $("#further").hide();
     }
-    else if (currentPage > pageCount) {
+    else if (currentPage >= pageCount) {
         $("#further").hide();
     }
 }
 
-function GetCustomers(urlTo) {
+function GetCustomers(nameFilter, filter, urlTo) {
     currentPage++;
     let viewModel = {
-        pagenumber: currentPage
+        currentPage: currentPage
     };
+    viewModel[nameFilter] = filter;
     $.ajax({
         type: 'POST',
         dataType: 'json',
@@ -32,4 +27,4 @@ function GetCustomers(urlTo) {
         }
     });
     setButtonFurther();
-};
+}

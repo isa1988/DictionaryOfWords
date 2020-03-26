@@ -47,6 +47,24 @@ namespace DictionaryOfWords.Service.Services
             }
         }
 
+        public List<WordDto> GetAllFilter(string name, string languageName)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var wordList = unitOfWork.Word.GetAllFilter(name, languageName);
+                if (wordList.Count == 0) return new List<WordDto>();
+                return AutoMapper.Mapper.Map<List<WordDto>>(wordList);
+            }
+        }
+        public List<WordDto> GetAllOfPageFilter(int pageNumber, int rowCount, string name, string languageName)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                var wordList = unitOfWork.Word.GetAllOfPageFilter(pageNumber, rowCount, name, languageName);
+                if (wordList.Count == 0) return new List<WordDto>();
+                return AutoMapper.Mapper.Map<List<WordDto>>(wordList);
+            }
+        }
         public List<WordDto> GetAllWordsForLanguage(int languageId)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())

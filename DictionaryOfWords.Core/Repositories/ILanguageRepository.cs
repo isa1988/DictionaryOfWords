@@ -10,5 +10,8 @@ namespace DictionaryOfWords.Core.Repositories
         bool IsNameReplay(int id, string name, bool isNew);
 
         List<Language> GetLanguageListOfName(List<string> nameList);
+
+        List<Language> GetAllFilter(string name);
+        List<Language> GetAllOfPageFilter(int pageNumber, int rowCount, string name);
     }
 }

@@ -10,5 +10,9 @@ namespace DictionaryOfWords.Service.Services.Contracts
     public interface ILanguageService : IGeneralServiceDto<Language, LanguageDto>
     {
         Task<EntityOperationResult<Language>> EditItemAsync(LanguageDto basketEditDto);
+
+
+        List<LanguageDto> GetAllFilter(string name);
+        List<LanguageDto> GetAllOfPageFilter(int pageNumber, int rowCount, string name);
     }
 }

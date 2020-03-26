@@ -13,5 +13,8 @@ namespace DictionaryOfWords.Core.Repositories
 
         List<WordTranslation> GetWordTranslationsForWord(int wordId);
         List<WordTranslation> GetWordTranslationsForWord(List<int> wordIdList);
+        
+        List<WordTranslation> GetAllFilter(string wordFrom, string languageFrom, string wordTo, string languageTo);
+        List<WordTranslation> GetAllOfPageFilter(int pageNumber, int rowCount, string wordFrom, string languageFrom, string wordTo, string languageTo);
     }
 }
