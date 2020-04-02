@@ -6,10 +6,6 @@
 
 <h1>Переводы слов</h1>
 
-<p>
-    <a asp-action="Create">Добавыить новый</a>
-</p>
-
 <p id="filterWordFrom" hidden>  </p>
 <p id="filterLanguageFrom" hidden>  </p>
 <p id="filterWordTo" hidden>  </p>
@@ -61,7 +57,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.WordTranslationModels[0].LanguageToName)
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -112,9 +107,6 @@
             trtable += '</td>';
             trtable += '<td>';
             trtable += data[i].languagetoname;
-            trtable += '</td>';
-            trtable += '<td>';
-            trtable += '<a href="">Редактировать</a>';
             trtable += '</td>';
             trtable += '</tr>';
             idNumberIndex++;

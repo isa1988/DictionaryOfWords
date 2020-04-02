@@ -28,7 +28,7 @@ namespace DictionaryOfWords.Web.Controllers
         }
         private ViewListModel GetViewListModel(string error, string wordFrom, string languageFrom, string wordTo, string languageTo)
         {
-            var wordTranslationDtoList = _service.GetAll();
+            var wordTranslationDtoList = _service.GetAllFilter(wordFrom, languageFrom, wordTo, languageTo);
             var model = new ViewListModel();
             var wordTranslationModelList = new List<WordTranslationModel>();
             wordTranslationModelList.Add(new WordTranslationModel());

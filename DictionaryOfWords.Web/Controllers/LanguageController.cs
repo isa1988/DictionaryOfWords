@@ -29,7 +29,7 @@ namespace DictionaryOfWords.Web.Controllers
             {
                 name = string.Empty;
             }
-            var languageDtoList = _service.GetAll();
+            var languageDtoList = _service.GetAllFilter(name);
             var model = new ViewListModel();
             var languageModelList = new List<LanguageModel>();
             languageModelList.Add(new LanguageModel());

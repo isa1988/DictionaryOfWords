@@ -12,7 +12,18 @@ namespace DictionaryOfWords.Web.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            if (User.IsInRole("Admin"))
+            {
+                return View("IndexAdmin");
+            }
+            else if (User.IsInRole("User"))
+            {
+                return View("IndexUser");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         public IActionResult Privacy()
