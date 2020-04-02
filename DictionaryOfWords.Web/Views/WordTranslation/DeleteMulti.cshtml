@@ -6,7 +6,7 @@
 
 <h1>Вы уверены что хотите удалиить выбранные записи?</h1>
 
-@if (!string.IsNullOrEmpty(Model.Error))
+@if (!string.IsNullOrWhiteSpace(Model.Error))
 {
     <p>
         @Model.Error;

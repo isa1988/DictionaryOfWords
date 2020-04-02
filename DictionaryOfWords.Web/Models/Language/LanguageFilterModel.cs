@@ -5,16 +5,12 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DictionaryOfWords.Web.Models
+namespace DictionaryOfWords.Web.Models.Language
 {
-    public class WordFilterModel
+    public class LanguageFilterModel
     {
         [DisplayName("Наименование")]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
-
-        [DisplayName("Язык")]
-        [JsonProperty(PropertyName = "language")]
-        public string LanguageName { get; set; }
     }
 }

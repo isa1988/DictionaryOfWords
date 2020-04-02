@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DictionaryOfWords.Web.Models;
+using DictionaryOfWords.Web.Models.WordTranslation;
 using Microsoft.AspNetCore.Mvc;
 using DictionaryOfWords.Service.Services.Contracts;
 using Microsoft.AspNetCore.SignalR;
 using DictionaryOfWords.Service.Dtos;
 using System.Net.Http;
+using DictionaryOfWords.Web.Models;
 
 namespace DictionaryOfWords.Web.Controllers
 {
@@ -84,22 +85,6 @@ namespace DictionaryOfWords.Web.Controllers
             var wordTranslationModels = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtos);
             return Json(wordTranslationModels);
         }
-
-
-        public IActionResult AddALot()
-        {
-            return View(new AddMultiModel { Text = ""});
-        }
-
-        [HttpPost]
-        public IActionResult AddALot([FromBody] AddMultiModel request)
-        {
-            _serviceMultiAdd.DoGenerate(_progressHubContext, request.Text);
-            request.WordMultiModelList = AutoMapper.Mapper.Map<List<WordMultiModel>>(_serviceMultiAdd.WordTranslations);
-            request.WordModelList = AutoMapper.Mapper.Map<List<WordModel>>(_serviceMultiAdd.Words);
-            return Ok(request);
-        }
-
         public async Task<IActionResult> DeleteMultiJson([FromBody] ViewListModel request)
         {
             List<WordTranslationModel> wordTranslationModels = request.WordTranslationModels.Where(x => x.IsDelete).ToList();

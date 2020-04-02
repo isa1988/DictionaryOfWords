@@ -7,9 +7,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DictionaryOfWords.Web.Models
+namespace DictionaryOfWords.Web.Models.WordTranslation
 {
-    public class WordTranslationAddOrEditModel : PageInfoNumberModel
+    public class WordTranslationModel : PageInfoModel
     {
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }

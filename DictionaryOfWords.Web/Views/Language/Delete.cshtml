@@ -1,4 +1,4 @@
-﻿@model DictionaryOfWords.Web.Models.LanguageModel
+﻿@model DictionaryOfWords.Web.Models.Language.LanguageModel
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -18,7 +18,7 @@
         </dd>
     </dl>
 
-    @if (!string.IsNullOrEmpty(Model.Error))
+    @if (!string.IsNullOrWhiteSpace(Model.Error))
     {
         <div>
             <p>Ошибка</p>

@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using DictionaryOfWords.Service.Dtos;
 using DictionaryOfWords.Web.Models;
+using DictionaryOfWords.Web.Models.Language;
+using DictionaryOfWords.Web.Models.Word;
+using DictionaryOfWords.Web.Models.WordTranslation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +17,6 @@ namespace DictionaryOfWords.Web
         {
             LanguageMapping();
             WordMapping();
-            AddMultiMapping();
             WordTranslationMapping();
         }
 
@@ -58,19 +60,6 @@ namespace DictionaryOfWords.Web
                 .ForMember(x => x.IsAdd, p => p.Ignore());
         }
         
-        private void AddMultiMapping()
-        {
-            CreateMap<WordTranslationDto, WordMultiModel>()
-                .ForMember(x => x.Id, p => p.MapFrom(c => c.Id))
-                .ForMember(x => x.LanguageFromId, p => p.MapFrom(c => c.LanguageFromId))
-                .ForMember(x => x.LanguageToId, p => p.MapFrom(c => c.LanguageToId))
-                .ForMember(x => x.LanguageFrom, p => p.MapFrom(c => c.LanguageFromWord))
-                .ForMember(x => x.LanguageTo, p => p.MapFrom(c => c.LanguageToWord))
-                .ForMember(x => x.WordFromId, p => p.MapFrom(c => c.WordSourceId))
-                .ForMember(x => x.WordToId, p => p.MapFrom(c => c.WordTranslationId))
-                .ForMember(x => x.WordFrom, p => p.MapFrom(c => c.WordSource))
-                .ForMember(x => x.WordTo, p => p.MapFrom(c => c.WordTranslationValue));
-        }
 
         private void WordTranslationMapping()
         {
