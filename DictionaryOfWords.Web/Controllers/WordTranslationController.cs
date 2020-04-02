@@ -10,6 +10,7 @@ using DictionaryOfWords.Service.Dtos;
 using System.Net.Http;
 using DictionaryOfWords.Web.Models;
 using Microsoft.AspNetCore.Authorization;
+using DictionaryOfWords.Web.Models.Word;
 
 namespace DictionaryOfWords.Web.Controllers
 {
@@ -165,6 +166,21 @@ namespace DictionaryOfWords.Web.Controllers
                 request.Error = GetError(result.Errors);
                 return View(request);
             }
+        }
+        [Authorize(Roles = "Admin")]
+        public IActionResult AddALot()
+        {
+            return View(new AddMultiModel { Text = "" });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public IActionResult AddALot([FromBody] AddMultiModel request)
+        {
+            _serviceMultiAdd.DoGenerate(_progressHubContext, request.Text);
+            request.WordMultiModelList = AutoMapper.Mapper.Map<List<WordMultiModel>>(_serviceMultiAdd.WordTranslations);
+            request.WordModelList = AutoMapper.Mapper.Map<List<WordModel>>(_serviceMultiAdd.Words);
+            return Ok(request);
         }
     }
 }

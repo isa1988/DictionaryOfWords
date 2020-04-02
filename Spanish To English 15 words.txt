@@ -1,0 +1,16 @@
+Spanish - English
+w: dientes s: дьентес - w: teeth s: tiːθ
+w: cáscara s: каскара - w: shell s: ʃel
+w: cuello s: куэльо - w: neck s: nek
+w: oxígeno s: оксихено - w: oxygen s: ˈɒk.sɪ.dʒən
+w: azúcar s: асукар - w: sugar s: ˈʃʊɡ.ər
+w: bonito s: бонито - w: pretty s: ˈprɪt.i
+w: habilidad s: абилидад - w: skill s: skɪl
+w: mujer s: мухер - w: women s: ˈwɪm.ɪn
+w: temporada s: темпорада - w: season s: ˈsiː.zən
+w: solución s: солусион - w: solution s: səˈluː.ʃən
+w: imán s: иман - w: magnet s: ˈmæɡ.nət
+w: plata s: плата - w: silver s: ˈsɪl.vər
+w: Gracias s: Грасиас - w: thanks s: θæŋks
+w: almuerzo s: альмуэрсо - w: lunch s: lʌntʃ
+w: partido s: партидо - w: match s: mætʃ

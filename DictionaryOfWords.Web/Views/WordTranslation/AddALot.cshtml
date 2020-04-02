@@ -1,0 +1,34 @@
+﻿@model DictionaryOfWords.Web.Models.AddMultiModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutForList.cshtml";
+}
+
+<h1>Мультизагрузка</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddALot" method="post" name="myForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Text" class="control-label"></label>
+                <textarea asp-for="Text" class="form-control" id="textIn"></textarea>
+                <span asp-validation-for="Text" class="text-danger"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="container">
+    <button onclick="StartProcess()" type="button" class="btn btn-primary btn-success">Записать</button>
+</div>
+<br />
+<div id="greyProgress">
+    <div id="greenBar">0%</div>
+</div>
+
+<script src="~/js/signalr.min.js"></script>
+<script src="~/js/adminAddMulti.js"></script>
+<script src="~/js/ProgressBar.js"></script>

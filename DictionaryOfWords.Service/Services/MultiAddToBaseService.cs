@@ -58,31 +58,32 @@ namespace DictionaryOfWords.Service.Services
 
             int index = 0;
 
-            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
-            {
-                List<string> names = _languageDtos.Select(x => x.Name.Trim()).ToList();
-                languages = unitOfWork.Language.GetLanguageListOfName(names);
-                if (languages.Count != 2)
-                {
-                    _languageDtos.Clear();
-                    return;
-                }
-                names = _wordDtos.Select(x => x.Name.Trim()).ToList();
-                
-                words = unitOfWork.Word.GetWordsForTwoLanguage(names, languages[0].Id, languages[1].Id);
-                
-                List<int> wordIdList = words.Select(x => x.Id).ToList();
-                if (wordIdList?.Count > 0)
-                {
-                    wordTranslations = unitOfWork.WordTranslation.GetLanguageListOfName(wordIdList, languages[0].Id, languages[1].Id);
-                }
-            }
-
-            if (languages == null || languages.Count == 0)
+            if (_languageDtos == null || _languageDtos.Count == 0 || _languageDtos.Count != 2)
             {
                 _progressBar.SendProgress(_countMultiAddToDateBase, _countMultiAddToDateBase, _titleOfAnalizeDateOperation);
                 return;
             }
+
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<string> names = _languageDtos.Select(x => x.Name.Trim()).ToList();
+                languages = unitOfWork.Language.GetLanguageListOfName(names);
+                names = _wordDtos.Select(x => x.Name.Trim()).ToList();
+
+                if (languages.Count > 0)
+                {
+                    int idFromLanguage = languages[0].Id;
+                    int idToLanguage = languages.Count > 1 ? languages[1].Id : -1;
+                    words = unitOfWork.Word.GetWordsForTwoLanguage(names, idFromLanguage, idToLanguage);
+
+                    List<int> wordIdList = words.Select(x => x.Id).ToList();
+                    if (wordIdList?.Count > 0)
+                    {
+                        wordTranslations = unitOfWork.WordTranslation.GetLanguageListOfName(wordIdList, idFromLanguage, idToLanguage);
+                    }
+                }
+            }
+
             int iteration = 0;
             _countMultiAddToDateBase = languages.Count + _wordDtos.Count + words.Count + _wordTranslationDtos.Count + wordTranslations.Count;
             for (int i = 0; i < languages.Count; i++)
@@ -169,7 +170,7 @@ namespace DictionaryOfWords.Service.Services
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
                 int iteration = 0;
-                _countMultiAddToDateBase = languages.Count + languageKeyList.Count + words.Count + wordKeyList.Count + wordTranslations.Count;
+                _countMultiAddToDateBase = languages.Count + words.Count + wordTranslations.Count;
                 if (languages?.Count > 0)
                 {
                     for (int i = 0; i < languages.Count; i++)
@@ -184,6 +185,7 @@ namespace DictionaryOfWords.Service.Services
                     }
                     await unitOfWork.CompleteAsync();
 
+                    _countMultiAddToDateBase += languageKeyList.Count;
                     foreach (KeyValuePair<LanguageDto, Language> rec in languageKeyList)
                     {
                         if (languages[languages.IndexOf(rec.Key)] != null)
@@ -210,6 +212,8 @@ namespace DictionaryOfWords.Service.Services
                     }
 
                     await unitOfWork.CompleteAsync();
+
+                    _countMultiAddToDateBase += wordKeyList.Count;
 
                     foreach (KeyValuePair<WordDto, Word> rec in wordKeyList)
                     {
@@ -285,8 +289,8 @@ namespace DictionaryOfWords.Service.Services
             string[] lineWords = words.Split(spaceWords, StringSplitOptions.RemoveEmptyEntries);
             if (lineWords.Length != 2) return;
             List<WordTranslationDto> wordTranslationDtos = new List<WordTranslationDto>();
-            AnalysisOfLine(lineWords[0], wordTranslationDtos, true);
-            AnalysisOfLine(lineWords[1], wordTranslationDtos, false);
+            AnalysisOfLine(lineWords[0].Trim(), wordTranslationDtos, true);
+            AnalysisOfLine(lineWords[1].Trim(), wordTranslationDtos, false);
             for (int i = 0; i < wordTranslationDtos.Count; i++)
             {
                 if (!_wordTranslationDtos.Any(x => x.LanguageFromWord == wordTranslationDtos[i].LanguageFromWord && x.LanguageToWord == wordTranslationDtos[i].LanguageToWord &&
@@ -350,7 +354,9 @@ namespace DictionaryOfWords.Service.Services
             string[] lines = line.Split(chStr, StringSplitOptions.RemoveEmptyEntries);
             if (lines.Length > 1)
             {
-                WordDto word = WordInsertInListAdd(lines[0], lines[1], isFirstLanguage);
+                string wordName = string.IsNullOrWhiteSpace(lines[0]) ? lines[1] : lines[0];
+                string sound = string.IsNullOrWhiteSpace(lines[0]) ? lines[2] : lines[1];
+                WordDto word = WordInsertInListAdd(wordName, sound, isFirstLanguage);
                 SetWordTranslation(_wordDtos[_wordDtos.IndexOf(word)], wordTranslationDtos, isFirstLanguage);
             }
         }

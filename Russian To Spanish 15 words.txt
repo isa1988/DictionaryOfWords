@@ -1,0 +1,16 @@
+Русский - Spanish
+зубы - w: dientes s: дьентес
+ракушка - w: cáscara s: каскара
+шея - w: cuello s: куэльо
+кислород - w: oxígeno s: оксихено
+сахар - w: azúcar s: асукар
+красивый,  довольно - w: bonito s: бонито
+умение - w: habilidad s: абилидад
+женщины - w: mujer s: мухер
+сезон,  время года - w: temporada s: темпорада
+решение - w: solución s: солусион
+магнит - w: imán s: иман
+серебро - w: plata s: плата
+спасибо - w: Gracias s: Грасиас
+ужин - w: almuerzo s: альмуэрсо
+совпадать,  матч - w: partido s: партидо
