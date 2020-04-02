@@ -69,9 +69,20 @@ namespace DictionaryOfWords.Web.Controllers
         }
 
         [HttpPost]
+        public ActionResult GetWordModelOfFiveLines([FromBody] PageInfoNumberModel request)
+        {
+            if (request == null || request.WordFilter == null || 
+                string.IsNullOrWhiteSpace(request.WordFilter.Name) || string.IsNullOrWhiteSpace(request.WordFilter.LanguageName)) return Json(string.Empty);
+            var wordDtos = _service.GetAllOfPageFilter(1, 5, request.WordFilter.Name, request.WordFilter.LanguageName);
+            var wordModels = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtos);
+            return Json(wordModels);
+        }
+
+
+        [HttpPost]
         public ActionResult GetWordModelOfPage([FromBody] PageInfoNumberModel request)
         {
-            var wordDtos = request.WordFilter == null 
+            var wordDtos = request.WordFilter == null
                           ? _service.GetAllOfPage(request.CurrentPage, 20)
                           : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.WordFilter.Name, request.WordFilter.LanguageName);
             var wordModels = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtos);

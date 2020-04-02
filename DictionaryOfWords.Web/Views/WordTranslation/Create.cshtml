@@ -1,0 +1,112 @@
+﻿@model DictionaryOfWords.Web.Models.WordTranslationAddOrEditModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Добавить новый перевод</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.Error))
+{
+    <div>
+        <p>Ошибка</p>
+        <p>@Model.Error</p>
+    </div>
+}
+<form asp-action="Create">
+    @Html.HiddenFor(model => model.WordFromId)
+    @Html.HiddenFor(model => model.WordFromName)
+    @Html.HiddenFor(model => model.WordToId)
+    @Html.HiddenFor(model => model.WordToName)
+    @Html.HiddenFor(model => model.LanguageFromId)
+    @Html.HiddenFor(model => model.LanguageFromName)
+    @Html.HiddenFor(model => model.LanguageToId)
+    @Html.HiddenFor(model => model.LanguageToName)
+
+
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="LanguageFromName" class="control-label"></label>
+                <input type="text" class="form-control" id="languageFrom" autocomplete="off" name="languageFromName" list="languageFromList" />
+                <datalist id="languageFromList">
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label asp-for="WordFromName" class="control-label"></label>
+                <input type="text" class="form-control" id="wordFrom" autocomplete="off" name="wordFromName" list="wordFromList" />
+                <datalist id="wordFromList">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LanguageToName" class="control-label"></label>
+                <input type="text" class="form-control" id="languageTo" autocomplete="off" name="languageToName" list="languageToList" />
+                <datalist id="languageToList">
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label asp-for="WordToName" class="control-label"></label>
+                <input type="text" class="form-control" id="wordTo" autocomplete="off" name="wordToName" list="wordToList" />
+                <datalist id="wordToList">
+                </datalist>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Сохранить" class="btn btn-primary" />
+    </div>
+</form>
+<div>
+    <a asp-action="Index">Назад</a>
+</div>
+
+<script src="~/js/genericFunAorEWordTr.js"></script>
+<script type="text/javascript">
+
+    $(function () {
+        setInputVal("languageFrom", $("#LanguageFromId").val(), $("#LanguageFromName").val());
+        setInputVal("wordFrom", $("#WordFromId").val(), $("#WordFromName").val());
+        setInputVal("languageTo", $("#LanguageToId").val(), $("#LanguageToName").val());
+        setInputVal("wordTo", $("#WordToId").val(), $("#WordToName").val()); 
+    });
+
+    $("#languageFrom").keypress(function (event) {
+        genericLanguageSelect('languageFrom', event.key, '@Url.Action("GetLanguagesFiveLines", "Language")');
+    });
+
+    $("#languageFrom").change(function () {
+        setFinalId("languageFrom", "LanguageFrom");
+        wordCleanValue("wordFrom", "WordFrom")
+    });
+
+
+    $("#wordFrom").keypress(function (event) {
+        genericWorkSelect('wordFrom', 'languageFrom', event.key, '@Url.Action("GetWordModelOfFiveLines", "Word")');
+    });
+
+    $("#wordFrom").change(function () {
+        setFinalId("wordFrom", "WordFrom");
+    });
+
+
+    $("#languageTo").keypress(function (event) {
+        genericLanguageSelect('languageTo', event.key, '@Url.Action("GetLanguagesFiveLines", "Language")');
+    });
+
+    $("#languageTo").change(function () {
+        setFinalId("languageTo", "LanguageTo");
+        wordCleanValue("wordTo", "WordTo")
+    });
+
+
+    $("#wordTo").keypress(function (event) {
+        genericWorkSelect('wordTo', 'languageTo', event.key, '@Url.Action("GetWordModelOfFiveLines", "Word")');
+    });
+
+    $("#wordTo").change(function () {
+        setFinalId("wordTo", "WordTo");
+    });
+</script>

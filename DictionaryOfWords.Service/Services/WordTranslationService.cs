@@ -76,7 +76,7 @@ namespace DictionaryOfWords.Service.Services
                 if (string.IsNullOrEmpty(errors) && unitOfWork.WordTranslation.IsNameReplay(value.Id, value.WordSourceId, value.WordTranslationId, value.LanguageFromId, value.LanguageToId, isNew))
                 {
                     errors += errors.Length > 0 ? Environment.NewLine : string.Empty;
-                    errors += "Текущий язык уже есть в базе";
+                    errors += "Текущий перевод уже есть в базе";
                 }
             }
             return errors;

@@ -4,7 +4,6 @@ w: shell s: ʃel — ракушка
 w: neck s: nek — шея
 w: oxygen s: ˈɒk.sɪ.dʒən — кислород
 w: sugar s: ˈʃʊɡ.ər — сахар
-w: death s: deθ — смерть
 w: pretty s: ˈprɪt.i — красивый,  довольно
 w: skill s: skɪl — умение
 w: women s: ˈwɪm.ɪn — женщины
@@ -82,7 +81,7 @@ w: noise s: nɔɪz — шум
 w: level s: ˈlev.əl — уровень
 w: chance s: tʃɑːns — шанс
 w: gather s: ˈɡæð.ər — собирать
-w: shop s: ʃɒp — магазин (брит.)
+w: shop s: ʃɒp — магазин
 w: stretch s: stretʃ — растягивать
 w: throw s: θrəʊ — бросать
 w: shine s: ʃaɪn — сиять
@@ -97,3 +96,6 @@ w: require s: rɪˈkwaɪər — требоваться
 w: broad s: brɔːd — широкий
 w: prepare s: prɪˈpeər — подготавливать
 w: salt s: sɒlt — соль,  соленый
+w: nose s: nəʊz — нос
+w: plural s: ˈplʊə.rəl — множественное число
+w: price s: praɪs — цена

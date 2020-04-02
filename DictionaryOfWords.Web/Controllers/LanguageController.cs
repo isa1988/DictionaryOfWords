@@ -74,6 +74,15 @@ namespace DictionaryOfWords.Web.Controllers
 
 
         [HttpPost]
+        public ActionResult GetLanguagesFiveLines([FromBody] PageInfoNumberModel request)
+        {
+            if (request == null || request.LanguageFilter == null || string.IsNullOrWhiteSpace(request.LanguageFilter.Name)) return Json(string.Empty);
+            var languageDtos = _service.GetAllOfPageFilter(1, 5, request.LanguageFilter.Name);
+            var languageModels = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtos);
+            return Json(languageModels);
+        }
+
+        [HttpPost]
         public ActionResult GetLanguageModelOfPage([FromBody] PageInfoNumberModel request)
         {
             var languageDtos = request.LanguageFilter == null

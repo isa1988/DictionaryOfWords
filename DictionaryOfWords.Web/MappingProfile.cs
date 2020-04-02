@@ -92,6 +92,13 @@ namespace DictionaryOfWords.Web
                 .ForMember(x => x.LanguageToId, p => p.MapFrom(c => c.LanguageToId))
                 .ForMember(x => x.WordSourceId, p => p.MapFrom(c => c.WordFromId))
                 .ForMember(x => x.WordTranslationId, p => p.MapFrom(c => c.WordToId));
+
+            CreateMap<WordTranslationAddOrEditModel, WordTranslationDto>()
+                .ForMember(x => x.Id, p => p.MapFrom(c => c.Id))
+                .ForMember(x => x.LanguageFromId, p => p.MapFrom(c => c.LanguageFromId))
+                .ForMember(x => x.LanguageToId, p => p.MapFrom(c => c.LanguageToId))
+                .ForMember(x => x.WordSourceId, p => p.MapFrom(c => c.WordFromId))
+                .ForMember(x => x.WordTranslationId, p => p.MapFrom(c => c.WordToId));
         }
     }
 }

@@ -23,7 +23,6 @@ namespace DictionaryOfWords.DAL.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-//            optionsBuilder.UseMySQL("server=127.0.0.1;port=3306;uid=root;pwd=123456;database=DictionaryOfWords");
             base.OnConfiguring(optionsBuilder);
         }
 
