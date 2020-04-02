@@ -38,13 +38,15 @@ namespace DictionaryOfWords.Web.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
+            [Display(Name = "Логин")]
             public string Login { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
+            [Display(Name = "Пароль")]
             public string Password { get; set; }
 
-            [Display(Name = "Remember me?")]
+            [Display(Name = "Запомнить меня")]
             public bool RememberMe { get; set; }
         }
 
@@ -90,7 +92,7 @@ namespace DictionaryOfWords.Web.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Неверный логин или пароль.");
                     return Page();
                 }
             }

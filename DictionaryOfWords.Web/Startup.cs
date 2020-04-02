@@ -74,6 +74,7 @@ namespace DictionaryOfWords.Web
             });
 
             services.AddSignalR();
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -96,20 +97,21 @@ namespace DictionaryOfWords.Web
             app.UseCookiePolicy();
             
             new DataDbInitializer().SeedAsync(app).GetAwaiter();
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ProgressHub>("/prog");
+                routes.MapHub<ChatHub>("/chat");
+            });
+
+            app.UseAuthentication();
+            
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            app.UseSignalR(routes =>
-            {
-                routes.MapHub<ProgressHub>("/prog");
-                routes.MapHub<ChatHub>("/chat");
-                //routes.MapDefaultControllerRoute();
-            });
-
             /*
             app.UseSignalR(routes =>
             {
