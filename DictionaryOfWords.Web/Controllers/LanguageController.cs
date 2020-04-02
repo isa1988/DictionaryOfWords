@@ -6,11 +6,13 @@ using DictionaryOfWords.Service.Dtos;
 using DictionaryOfWords.Service.Services.Contracts;
 using DictionaryOfWords.Web.Models;
 using DictionaryOfWords.Web.Models.Language;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DictionaryOfWords.Web.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class LanguageController : BaseController
     {
         private readonly ILanguageService _service;

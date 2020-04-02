@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 using DictionaryOfWords.Service.Dtos;
 using System.Net.Http;
 using DictionaryOfWords.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DictionaryOfWords.Web.Controllers
 {
@@ -54,12 +55,30 @@ namespace DictionaryOfWords.Web.Controllers
         }
 
 
+        [Authorize(Roles = "User")]
+        public IActionResult IndexUser()
+        {
+            var model = GetViewListModel(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            return View(model);
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpPost]
+        public IActionResult IndexUser(ViewListModel request)
+        {
+            var model = GetViewListModel(string.Empty, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
+                                                       request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
+            return View(model);
+        }
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
             var model = GetViewListModel(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Index(ViewListModel request)
         {
@@ -68,6 +87,7 @@ namespace DictionaryOfWords.Web.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult IndexError(ViewListModel request)
         {
             var model = GetViewListModel(request.Error, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
@@ -75,6 +95,7 @@ namespace DictionaryOfWords.Web.Controllers
             return View("Index", model);
         }
 
+        [Authorize(Roles = "Admin, User")]
         [HttpPost]
         public ActionResult GetDataOfPage([FromBody] PageInfoNumberModel request)
         {
@@ -85,6 +106,8 @@ namespace DictionaryOfWords.Web.Controllers
             var wordTranslationModels = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtos);
             return Json(wordTranslationModels);
         }
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteMultiJson([FromBody] ViewListModel request)
         {
             List<WordTranslationModel> wordTranslationModels = request.WordTranslationModels.Where(x => x.IsDelete).ToList();
@@ -100,6 +123,7 @@ namespace DictionaryOfWords.Web.Controllers
         }
 
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteMulti(DeleteMultiModel request)
@@ -118,11 +142,13 @@ namespace DictionaryOfWords.Web.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View(new WordTranslationAddOrEditModel());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create (WordTranslationAddOrEditModel request)
