@@ -1,4 +1,5 @@
-﻿using DictionaryOfWords.Core.DataBase;
+﻿using AutoMapper;
+using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.DAL.Unit.Contracts;
 using DictionaryOfWords.Service.Dtos;
 using DictionaryOfWords.Service.Services.Contracts;
@@ -13,7 +14,17 @@ namespace DictionaryOfWords.Service.Services
 {
     public class MultiAddToBaseService : IMultiAddToBaseService
     {
-        IUnitOfWorkFactory _unitOfWorkFactory;
+        public MultiAddToBaseService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
+        {
+            if (unitOfWorkFactory == null)
+                throw new ArgumentNullException(nameof(unitOfWorkFactory));
+            if (mapper == null)
+                throw new ArgumentNullException(nameof(mapper));
+            _unitOfWorkFactory = unitOfWorkFactory;
+            _mapper = mapper;
+        }
+        private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly IMapper _mapper;
         private List<LanguageDto> _languageDtos = new List<LanguageDto>();
         private List<WordDto> _wordDtos = new List<WordDto>();
         private List<WordTranslationDto> _wordTranslationDtos = new List<WordTranslationDto>();
@@ -21,12 +32,8 @@ namespace DictionaryOfWords.Service.Services
         private const string _titleOfPreSetMultiAddToDateBaseOperation = "Анализ текста";
         private const string _titleOfAnalizeDateOperation = "Анализ данных";
         private const string _titleOfMultiAddToDateBaseOperation = "Сохранение данныъ";
-
+        private const int _countChackLanguage = 2;
         DictionaryOfWords.SignalR.ProgressBar _progressBar = null;
-        public MultiAddToBaseService(IUnitOfWorkFactory unitOfWorkFactory)
-        {
-            _unitOfWorkFactory = unitOfWorkFactory;
-        }
         private int _countMultiAddToDateBase = 0;
         public int CountMultiAddToDateBase { get { return _countMultiAddToDateBase; } }
 
@@ -47,22 +54,17 @@ namespace DictionaryOfWords.Service.Services
         /// </summary>
         private void AnalizeDate()
         {
-            if (_languageDtos.Count != 2) return;
-            List<Language> languages = new List<Language>();
-            List<Word> words = new List<Word>();
-            List<WordTranslation> wordTranslations = new List<WordTranslation>();
-
-            LanguageDto language;
-            WordDto word;
-            WordTranslationDto wordTranslation;
-
-            int index = 0;
+            if (_languageDtos.Count != _countChackLanguage) return;
 
             if (_languageDtos == null || _languageDtos.Count == 0 || _languageDtos.Count != 2)
             {
                 _progressBar.SendProgress(_countMultiAddToDateBase, _countMultiAddToDateBase, _titleOfAnalizeDateOperation);
                 return;
             }
+
+            List<Language> languages = new List<Language>();
+            List<Word> words = new List<Word>();
+            List<WordTranslation> wordTranslations = new List<WordTranslation>();
 
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
@@ -86,6 +88,22 @@ namespace DictionaryOfWords.Service.Services
 
             int iteration = 0;
             _countMultiAddToDateBase = languages.Count + _wordDtos.Count + words.Count + _wordTranslationDtos.Count + wordTranslations.Count;
+
+            iteration = AnalizeLanguage(iteration, languages);
+            iteration = AnalizeWord(iteration, words);
+            iteration = AnalizeWordTranslations(iteration, wordTranslations);
+        }
+
+        /// <summary>
+        /// Анализ языков
+        /// </summary>
+        /// <param name="iteration">Индекс для прогресбара</param>
+        /// <param name="languages">Список языков из БД</param>
+        /// <returns></returns>
+        private int AnalizeLanguage(int iteration, List<Language> languages)
+        {
+            LanguageDto language;
+
             for (int i = 0; i < languages.Count; i++)
             {
                 language = _languageDtos.FirstOrDefault(x => x.Name.Trim().ToLower() == languages[i].Name.Trim().ToLower());
@@ -97,6 +115,19 @@ namespace DictionaryOfWords.Service.Services
                 iteration++;
                 _progressBar.SendProgress(iteration, _countMultiAddToDateBase, _titleOfAnalizeDateOperation);
             }
+            
+            return iteration;
+        }
+
+        /// <summary>
+        /// Анализ слов
+        /// </summary>
+        /// <param name="iteration">Индекс для прогресбара</param>
+        /// <param name="words">Список слов из БД</param>
+        /// <returns></returns>
+        private int AnalizeWord(int iteration, List<Word> words)
+        {
+            WordDto word;
 
             for (int i = 0; i < _wordDtos.Count; i++)
             {
@@ -116,6 +147,19 @@ namespace DictionaryOfWords.Service.Services
                 iteration++;
                 _progressBar.SendProgress(iteration, _countMultiAddToDateBase, _titleOfAnalizeDateOperation);
             }
+            
+            return iteration;
+        }
+
+        /// <summary>
+        /// Анализ переводов
+        /// </summary>
+        /// <param name="iteration">Индекс для прогресбара</param>
+        /// <param name="wordTranslations">Список переводов из БД</param>
+        /// <returns></returns>
+        private int AnalizeWordTranslations(int iteration, List<WordTranslation> wordTranslations)
+        {
+            WordTranslationDto wordTranslation;
 
             for (int i = 0; i < _wordTranslationDtos.Count; i++)
             {
@@ -129,14 +173,14 @@ namespace DictionaryOfWords.Service.Services
 
             for (int i = 0; i < wordTranslations.Count; i++)
             {
-                wordTranslation =  _wordTranslationDtos.FirstOrDefault(x => (x.WordSourceId == wordTranslations[i].WordSource?.Id &&
-                                                                            x.WordTranslationId == wordTranslations[i].WordTranslationValue?.Id &&
-                                                                            x.LanguageFromId == wordTranslations[i].LanguageFromWord?.Id &&
-                                                                            x.LanguageToId == wordTranslations[i].LanguageToWord?.Id) ||
-                                                                     (x.WordSourceId == wordTranslations[i].WordTranslationValue?.Id &&
-                                                                      x.WordTranslationId == wordTranslations[i].WordSource?.Id &&
-                                                                      x.LanguageToId == wordTranslations[i].LanguageFromWord?.Id &&
-                                                                      x.LanguageFromId == wordTranslations[i].LanguageToWord?.Id));
+                wordTranslation = _wordTranslationDtos.FirstOrDefault(x => (x.WordSourceId == wordTranslations[i].WordSource?.Id &&
+                                                                           x.WordTranslationId == wordTranslations[i].WordTranslationValue?.Id &&
+                                                                           x.LanguageFromId == wordTranslations[i].LanguageFromWord?.Id &&
+                                                                           x.LanguageToId == wordTranslations[i].LanguageToWord?.Id) ||
+                                                                    (x.WordSourceId == wordTranslations[i].WordTranslationValue?.Id &&
+                                                                     x.WordTranslationId == wordTranslations[i].WordSource?.Id &&
+                                                                     x.LanguageToId == wordTranslations[i].LanguageFromWord?.Id &&
+                                                                     x.LanguageFromId == wordTranslations[i].LanguageToWord?.Id));
                 if (wordTranslation != null)
                 {
                     _wordTranslationDtos[_wordTranslationDtos.IndexOf(wordTranslation)].IsAdd = false;
@@ -145,37 +189,49 @@ namespace DictionaryOfWords.Service.Services
                 iteration++;
                 _progressBar.SendProgress(iteration, _countMultiAddToDateBase, _titleOfAnalizeDateOperation);
             }
+            return iteration;
         }
+
         /// <summary>
         /// Добавление в БД
         /// </summary>
         private async void MultiAddToDateBase()
         {
-            if (_languageDtos.Count != 2) return;
+            if (_languageDtos.Count != _countChackLanguage) return;
             List<LanguageDto> languages = _languageDtos.Where(x => x.IsAdd).ToList();
             List<WordDto> words = _wordDtos.Where(x => x.IsAdd).ToList();
             List<WordTranslationDto> wordTranslations = _wordTranslationDtos.Where(x => x.IsAdd).ToList();
-
-            Language language;
-            Word word;
-            WordTranslation wordTranslation;
 
             if (languages.Count == 0 && words.Count == 0 && wordTranslations.Count == 0)
             {
                 _progressBar.SendProgress(_countMultiAddToDateBase, _countMultiAddToDateBase, _titleOfMultiAddToDateBaseOperation);
                 return;
             }
+
+            int iteration = 0;
+            _countMultiAddToDateBase = languages.Count + words.Count + wordTranslations.Count;
+            iteration = await SaveLanguageToBase(iteration, languages);
+            iteration = await SaveWordToBase(iteration, words);
+            iteration = await SaveWordTranslationToBase(iteration, wordTranslations);
+        }
+
+        /// <summary>
+        /// Сохранение языков
+        /// </summary>
+        /// <param name="iteration">Индекс для прогресбара</param>
+        /// <param name="languages">Список языков который нужно сохранить</param>
+        /// <returns></returns>
+        private async Task<int> SaveLanguageToBase(int iteration, List<LanguageDto> languages)
+        {
+            Language language;
             Dictionary<LanguageDto, Language> languageKeyList = new Dictionary<LanguageDto, Language>();
-            Dictionary<WordDto, Word> wordKeyList = new Dictionary<WordDto, Word>();
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                int iteration = 0;
-                _countMultiAddToDateBase = languages.Count + words.Count + wordTranslations.Count;
                 if (languages?.Count > 0)
                 {
                     for (int i = 0; i < languages.Count; i++)
                     {
-                        language = AutoMapper.Mapper.Map<Language>(languages[i]);
+                        language = _mapper.Map<Language>(languages[i]);
                         language = await unitOfWork.Language.AddAsync(language);
 
                         languageKeyList.Add(languages[i], language);
@@ -197,13 +253,30 @@ namespace DictionaryOfWords.Service.Services
                         _progressBar.SendProgress(iteration, _countMultiAddToDateBase, _titleOfMultiAddToDateBaseOperation);
                     }
                 }
+            }
 
+            return iteration;
+        }
+
+
+        /// <summary>
+        /// Сохранение слов
+        /// </summary>
+        /// <param name="iteration">Индекс для прогресбара</param>
+        /// <param name="words">Список слов который нужно сохранить</param>
+        /// <returns></returns>
+        private async Task<int> SaveWordToBase(int iteration, List<WordDto> words)
+        {
+            Word word;
+            Dictionary<WordDto, Word> wordKeyList = new Dictionary<WordDto, Word>();
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
                 if (words?.Count > 0)
                 {
                     for (int i = 0; i < words.Count; i++)
                     {
                         words[i].LanguageId = (words[i].Language != null) ? words[i].Language.Id : -1;
-                        word = AutoMapper.Mapper.Map<Word>(words[i]);
+                        word = _mapper.Map<Word>(words[i]);
                         word = await unitOfWork.Word.AddAsync(word);
                         wordKeyList.Add(words[i], word);
 
@@ -226,15 +299,32 @@ namespace DictionaryOfWords.Service.Services
                         _progressBar.SendProgress(iteration, _countMultiAddToDateBase, _titleOfMultiAddToDateBaseOperation);
                     }
                 }
+            }
+
+            return iteration;
+        }
+
+        /// <summary>
+        /// Сохранение переводов
+        /// </summary>
+        /// <param name="iteration">Индекс для прогресбара</param>
+        /// <param name="words">Список переводов который нужно сохранить</param>
+        /// <returns></returns>
+        private async Task<int> SaveWordTranslationToBase(int iteration, List<WordTranslationDto> wordTranslations)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
                 if (wordTranslations?.Count > 0)
                 {
+                    WordTranslation wordTranslation;
+
                     for (int i = 0; i < wordTranslations.Count; i++)
                     {
                         wordTranslations[i].LanguageFromId = (wordTranslations[i].LanguageFromWord != null) ? wordTranslations[i].LanguageFromWord.Id : -1;
                         wordTranslations[i].LanguageToId = (wordTranslations[i].LanguageToWord != null) ? wordTranslations[i].LanguageToWord.Id : -1;
                         wordTranslations[i].WordSourceId = (wordTranslations[i].WordSource != null) ? wordTranslations[i].WordSource.Id : -1;
                         wordTranslations[i].WordTranslationId = (wordTranslations[i].WordTranslationValue != null) ? wordTranslations[i].WordTranslationValue.Id : -1;
-                        wordTranslation = AutoMapper.Mapper.Map<WordTranslation>(wordTranslations[i]);
+                        wordTranslation = _mapper.Map<WordTranslation>(wordTranslations[i]);
                         wordTranslation = await unitOfWork.WordTranslation.AddAsync(wordTranslation);
 
                         iteration++;
@@ -244,8 +334,9 @@ namespace DictionaryOfWords.Service.Services
                     await unitOfWork.CompleteAsync();
                 }
             }
+            return iteration;
         }
-
+                    
         /// <summary>
         /// Анализ текста преобразование в объект
         /// </summary>

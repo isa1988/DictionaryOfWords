@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Core.Repositories
 {
-    public interface IRepository<T> where T : Entity
+    public interface IRepositoryBase<T> where T : EntityBase
     {
         Task<T> AddAsync(T entity);
         List<T> GetAll();

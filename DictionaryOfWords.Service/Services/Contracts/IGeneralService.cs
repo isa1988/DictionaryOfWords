@@ -1,4 +1,5 @@
 ﻿using DictionaryOfWords.Core.DataBase;
+using DictionaryOfWords.Service.Dtos.FilterDto;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Service.Services.Contracts
 {
-    public interface IGeneralServiceDto<TBase, TDto> where TBase : Entity
+    public interface IGeneralService<TBase, TDto, TFilter> 
+        where TBase : EntityBase
+        where TFilter : FilterBaseDto
     {
         /// <summary>
         /// Добавить запись в базу
@@ -49,5 +52,29 @@ namespace DictionaryOfWords.Service.Services.Contracts
         /// </summary>
         /// <returns></returns>
         List<TDto> GetAllOfPage(int pageNumber, int rowCount);
+
+
+        /// <summary>
+        /// Вернуть все записи по фильтру
+        /// </summary>
+        /// <param name="filter">фильтр</param>
+        /// <returns></returns>
+        List<TDto> GetAllFilter(TFilter filter);
+
+        /// <summary>
+        /// Вернуть количество записей по списку
+        /// </summary>
+        /// <param name="filter">фильтр</param>
+        /// <returns></returns>
+        int GetCountOfAllFilter(TFilter filter);
+
+        /// <summary>
+        /// Постраничное отображение записей
+        /// </summary>
+        /// <param name="filter">фильтр</param>
+        /// <param name="pageNumber">страница</param>
+        /// <param name="rowCount">записи на странице</param>
+        /// <returns></returns>
+        List<TDto> GetAllOfPageFilter(TFilter filter, int pageNumber, int rowCount);
     }
 }

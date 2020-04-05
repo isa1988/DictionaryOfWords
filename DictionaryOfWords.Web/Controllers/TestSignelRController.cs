@@ -12,14 +12,19 @@ namespace DictionaryOfWords.Web.Controllers
 {
     public class TestSignelRController : Controller
     {
-        IHubContext<ProgressHub> _progressHubContext;
-        IHubContext<ChatHub> _hubContext;
         public TestSignelRController(IHubContext<ProgressHub> progressHubContext,
                                      IHubContext<ChatHub> hubContext)
         {
+            if (progressHubContext == null)
+                throw new ArgumentNullException(nameof(progressHubContext));
+            if (hubContext == null)
+                throw new ArgumentNullException(nameof(hubContext));
             _progressHubContext = progressHubContext;
             _hubContext = hubContext;
         }
+
+        IHubContext<ProgressHub> _progressHubContext;
+        IHubContext<ChatHub> _hubContext;
 
         public ActionResult Index()
         {

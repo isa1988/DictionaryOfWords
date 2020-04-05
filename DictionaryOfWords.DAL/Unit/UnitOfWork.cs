@@ -15,13 +15,6 @@ namespace DictionaryOfWords.DAL.Unit
 
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly DbContextDictionaryOfWords _contextDictionaryOfWords;
-        private readonly ConcurrentDictionary<Type, object> _repositories;
-
-        private IDbContextTransaction _transaction;
-
-        private bool _disposed;
-
         public UnitOfWork(DbContextDictionaryOfWords contextDictionaryOfWords)
         {
             _contextDictionaryOfWords = contextDictionaryOfWords;
@@ -31,6 +24,14 @@ namespace DictionaryOfWords.DAL.Unit
             Word = new WordRepository(contextDictionaryOfWords);
             WordTranslation = new WordTranslationRepository(contextDictionaryOfWords);
         }
+
+        private readonly DbContextDictionaryOfWords _contextDictionaryOfWords;
+        private readonly ConcurrentDictionary<Type, object> _repositories;
+
+        private IDbContextTransaction _transaction;
+
+        private bool _disposed;
+
 
         public ILanguageRepository Language { get; }
         public IWordRepository Word { get; }
@@ -62,9 +63,9 @@ namespace DictionaryOfWords.DAL.Unit
             _transaction = null;
         }
 
-        public IRepository<TEntity> GetRepository<TEntity>() where TEntity : Entity
+        public IRepositoryBase<TEntity> GetRepository<TEntity>() where TEntity : EntityBase
         {
-            return _repositories.GetOrAdd(typeof(TEntity), (object)new Repository<TEntity>(_contextDictionaryOfWords)) as IRepository<TEntity>;
+            return _repositories.GetOrAdd(typeof(TEntity), (object)new RepositoryBase<TEntity>(_contextDictionaryOfWords)) as IRepositoryBase<TEntity>;
         }
 
         public void RollbackTransaction()

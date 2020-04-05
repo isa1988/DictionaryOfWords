@@ -2,6 +2,7 @@
 using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.DAL.Unit.Contracts;
 using DictionaryOfWords.Service.Dtos;
+using DictionaryOfWords.Service.Dtos.FilterDto;
 using DictionaryOfWords.Service.Services.Contracts;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,10 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Service.Services
 {
-    public class LanguageService : GeneralServiceDto<Language, LanguageDto>, ILanguageService
+    public class LanguageService : GeneralService<Language, LanguageDto, LanguageFilterDto>, ILanguageService
     {
-        public LanguageService(IUnitOfWorkFactory unitOfWorkFactory) : base(unitOfWorkFactory, new LanguageDto())
+        public LanguageService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper) : base(unitOfWorkFactory, new LanguageDto(), mapper)
         {
-
         }
 
 
@@ -109,22 +109,27 @@ namespace DictionaryOfWords.Service.Services
             return error.ToString();
         }
 
-        public List<LanguageDto> GetAllFilter(string name)
+        public override List<LanguageDto> GetAllFilter(LanguageFilterDto filter)
         {
+            if (filter == null)
+                return new List<LanguageDto>();
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                var languageList = unitOfWork.Language.GetAllFilter(name);
+                var languageList = unitOfWork.Language.GetAllFilter(filter.Name);
                 if (languageList.Count == 0) return new List<LanguageDto>();
-                return AutoMapper.Mapper.Map<List<LanguageDto>>(languageList);
+                return _mapper.Map<List<LanguageDto>>(languageList);
             }
         }
-        public List<LanguageDto> GetAllOfPageFilter(int pageNumber, int rowCount, string name)
+        
+        public override List<LanguageDto> GetAllOfPageFilter(LanguageFilterDto filter, int pageNumber, int rowCount)
         {
+            if (filter == null)
+                return new List<LanguageDto>();
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                var languageList = unitOfWork.Language.GetAllOfPageFilter(pageNumber, rowCount, name);
+                var languageList = unitOfWork.Language.GetAllOfPageFilter(pageNumber, rowCount, filter.Name);
                 if (languageList.Count == 0) return new List<LanguageDto>();
-                return AutoMapper.Mapper.Map<List<LanguageDto>>(languageList);
+                return _mapper.Map<List<LanguageDto>>(languageList);
             }
         }
     }

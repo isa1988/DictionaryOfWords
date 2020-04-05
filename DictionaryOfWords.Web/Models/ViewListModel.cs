@@ -11,6 +11,12 @@ namespace DictionaryOfWords.Web.Models
 {
     public class ViewListModel : PageInfoNumberModel
     {
+        public ViewListModel()
+        {
+            WordTranslationModels = new List<WordTranslationModel>();
+            LanguageModels = new List<LanguageModel>();
+            WordModels = new List<WordDeleteModel>();
+        }
         [JsonProperty(PropertyName = "languageModels")]
         public List<LanguageModel> LanguageModels { get; set; }
 
@@ -23,11 +29,5 @@ namespace DictionaryOfWords.Web.Models
         [JsonProperty(PropertyName = "isDelete")]
         public bool IsDelete { get; set; }
         
-        public ViewListModel()
-        {
-            WordTranslationModels = new List<WordTranslationModel>();
-            LanguageModels = new List<LanguageModel>();
-            WordModels = new List<WordDeleteModel>();
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.DAL.Unit.Contracts;
+using DictionaryOfWords.Service.Dtos.FilterDto;
 using DictionaryOfWords.Service.Services.Contracts;
 using System;
 using System.Collections.Generic;
@@ -10,21 +11,28 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Service.Services
 {
-    public abstract class GeneralServiceDto<TBase, TDto> : IGeneralServiceDto<TBase, TDto> where TBase : Entity
+    public abstract class GeneralService<TBase, TDto, TFilter> : IGeneralService<TBase, TDto, TFilter> 
+        where TBase : EntityBase
+        where TFilter : FilterBaseDto
     {
-        protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
-        private readonly TDto _dtoEmpty;
-
-        public GeneralServiceDto(IUnitOfWorkFactory unitOfWorkFactory, TDto empty)
+        public GeneralService(IUnitOfWorkFactory unitOfWorkFactory, TDto empty, IMapper mapper)
         {
             if (unitOfWorkFactory == null)
                 throw new ArgumentNullException(nameof(unitOfWorkFactory));
             if (empty == null)
                 throw new ArgumentNullException(nameof(empty));
+            if (mapper == null)
+                throw new ArgumentNullException(nameof(mapper));
 
             _unitOfWorkFactory = unitOfWorkFactory;
             _dtoEmpty = empty;
+            _mapper = mapper;
         }
+
+        protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
+        private readonly TDto _dtoEmpty;
+        protected readonly IMapper _mapper;
+
 
         protected abstract string CheckAndGetErrors(TDto value, bool isNew = true);
 
@@ -39,7 +47,7 @@ namespace DictionaryOfWords.Service.Services
             {
                 try
                 {
-                    TBase value = Mapper.Map<TBase>(basketCreateDto);
+                    TBase value = _mapper.Map<TBase>(basketCreateDto);
                     var entity = await unitOfWork.GetRepository<TBase>().AddAsync(value);
                     await unitOfWork.CompleteAsync();
 
@@ -124,7 +132,7 @@ namespace DictionaryOfWords.Service.Services
                 {
                     return new List<TDto>();
                 }
-                List<TDto> retList = Mapper.Map<List<TDto>>(valueBaseList);
+                List<TDto> retList = _mapper.Map<List<TDto>>(valueBaseList);
                 return retList;
             }
         }
@@ -138,7 +146,7 @@ namespace DictionaryOfWords.Service.Services
                 {
                     return new List<TDto>();
                 }
-                List<TDto> retList = Mapper.Map<List<TDto>>(valueBaseList);
+                List<TDto> retList = _mapper.Map<List<TDto>>(valueBaseList);
                 return retList;
             }
         }
@@ -149,10 +157,20 @@ namespace DictionaryOfWords.Service.Services
             {
                 TBase value = unitOfWork.GetRepository<TBase>().GetById(id);
                 if (value == null) return _dtoEmpty;
-                TDto dto = Mapper.Map<TDto>(value);
+                TDto dto = _mapper.Map<TDto>(value);
                 return dto;
 
             }
         }
+
+        public abstract List<TDto> GetAllFilter(TFilter filter);
+
+        public virtual int GetCountOfAllFilter(TFilter filter)
+        {
+            var retList = GetAllFilter(filter);
+            return retList.Count;
+        }
+
+        public abstract List<TDto> GetAllOfPageFilter(TFilter filter, int pageNumber, int rowCount);
     }
 }

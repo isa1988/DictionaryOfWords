@@ -8,11 +8,11 @@ namespace DictionaryOfWords.SignalR
 {
     public class ProgressBar
     {
-        IHubContext<ProgressHub> _progressHubContext;
         public ProgressBar(IHubContext<ProgressHub> progressHubContext)
         {
             _progressHubContext = progressHubContext;
         }
+        IHubContext<ProgressHub> _progressHubContext;
 
         public void SendProgress(int progressCount, int totalItems, string nameOperation)
         {

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DictionaryOfWords.DAL.Repositories
 {
-    class WordRepository : Repository<Word>, IWordRepository
+    class WordRepository : RepositoryBase<Word>, IWordRepository
     {
         public WordRepository(DbContextDictionaryOfWords contextDictionaryOfWords) : base(contextDictionaryOfWords)
         {
@@ -35,11 +35,11 @@ namespace DictionaryOfWords.DAL.Repositories
             IQueryable<Word> words = GetInclude();
             if (!string.IsNullOrWhiteSpace(name))
             {
-                words = words.Where(x => x.Name.Contains(name));
+                words = words.Where(x => EF.Functions.Like(x.Name, name.Like()));
             }
             if (!string.IsNullOrWhiteSpace(languageName))
             {
-                words = words.Where(x => x.Language.Name.Contains(languageName));
+                words = words.Where(x => EF.Functions.Like(x.Language.Name, languageName.Like()));
             }
             return words;
         }

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DictionaryOfWords.DAL.Repositories
 {
-    class WordTranslationRepository : Repository<WordTranslation>, IWordTranslationRepository
+    class WordTranslationRepository : RepositoryBase<WordTranslation>, IWordTranslationRepository
     {
         public WordTranslationRepository(DbContextDictionaryOfWords contextDictionaryOfWords) : base(contextDictionaryOfWords)
         {
@@ -52,22 +52,22 @@ namespace DictionaryOfWords.DAL.Repositories
             IQueryable<WordTranslation> wordTranslations = GetInclude();
             if (!string.IsNullOrWhiteSpace(wordFrom))
             {
-                wordTranslations = wordTranslations.Where(x => x.WordSource.Name.Contains(wordFrom) || x.WordTranslationValue.Name.Contains(wordFrom));
+                wordTranslations = wordTranslations.Where(x => EF.Functions.Like(x.WordSource.Name, wordFrom.Like()) || EF.Functions.Like(x.WordTranslationValue.Name, wordFrom.Like()));
             }
 
             if (!string.IsNullOrWhiteSpace(languageFrom))
             {
-                wordTranslations = wordTranslations.Where(x => x.LanguageFromWord.Name.Contains(languageFrom) || x.LanguageToWord.Name.Contains(languageFrom));
+                wordTranslations = wordTranslations.Where(x => EF.Functions.Like(x.LanguageFromWord.Name, languageFrom.Like()) || EF.Functions.Like(x.LanguageToWord.Name, languageFrom.Like()));
             }
 
             if (!string.IsNullOrWhiteSpace(wordTo))
             {
-                wordTranslations = wordTranslations.Where(x => x.WordTranslationValue.Name.Contains(wordTo) || x.WordSource.Name.Contains(wordTo));
+                wordTranslations = wordTranslations.Where(x => EF.Functions.Like(x.WordTranslationValue.Name, wordTo.Like()) || EF.Functions.Like(x.WordSource.Name, wordTo.Like()));
             }
 
             if (!string.IsNullOrWhiteSpace(languageTo))
             {
-                wordTranslations = wordTranslations.Where(x => x.LanguageToWord.Name.Contains(languageTo) || x.LanguageFromWord.Name.Contains(languageTo));
+                wordTranslations = wordTranslations.Where(x => EF.Functions.Like(x.LanguageToWord.Name, languageTo.Like()) || EF.Functions.Like(x.LanguageFromWord.Name, languageTo.Like()));
             }
 
             return wordTranslations;

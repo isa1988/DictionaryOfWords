@@ -8,12 +8,12 @@ namespace DictionaryOfWords.DAL.Unit
 {
     public class UnitOfWorkFactory : IUnitOfWorkFactory
     {
-        private readonly IDbContextFactory _applicationDbContextFactory;
-
         public UnitOfWorkFactory(IDbContextFactory applicationDbContextFactory)
         {
             _applicationDbContextFactory = applicationDbContextFactory;
         }
+        private readonly IDbContextFactory _applicationDbContextFactory;
+
 
         public IUnitOfWork MakeUnitOfWork()
         {

@@ -5,14 +5,8 @@ using System.Text;
 
 namespace DictionaryOfWords.Service
 {
-    public class EntityOperationResult<T> where T : Entity
+    public class EntityOperationResult<T> where T : EntityBase
     {
-        public bool IsSuccess { get; private set; }
-
-        public T Entity { get; }
-
-        public List<string> Errors { get; private set; }
-
         private EntityOperationResult(T entity)
         {
             Entity = entity;
@@ -21,6 +15,12 @@ namespace DictionaryOfWords.Service
         private EntityOperationResult()
         {
         }
+        public bool IsSuccess { get; private set; }
+
+        public T Entity { get; }
+
+        public string[] Errors { get; private set; }
+
 
         public static EntityOperationResult<T> Success(T entity)
         {
@@ -33,19 +33,21 @@ namespace DictionaryOfWords.Service
         {
             var result = new EntityOperationResult<T>();
             result.IsSuccess = false;
-            result.Errors = new List<string>();
+            result.Errors = new string[0];
 
             return result;
         }
 
         public EntityOperationResult<T> AddError(params string[] errorMessages)
         {
-            if (Errors == null)
+            if (errorMessages?.Length > 0)
             {
-                Errors = new List<string>();
+                Errors = errorMessages;
             }
-            Errors.AddRange(errorMessages);
-
+            else
+            {
+                Errors = new string[0];
+            }
             return this;
         }
     }

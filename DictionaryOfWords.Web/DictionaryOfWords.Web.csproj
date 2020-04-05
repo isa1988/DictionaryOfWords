@@ -7,6 +7,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="5.1.2" />
     <PackageReference Include="AutoMapper" Version="8.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
@@ -18,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DictionaryOfWords.Core\DictionaryOfWords.Core.csproj" />
     <ProjectReference Include="..\DictionaryOfWords.DAL\DictionaryOfWords.DAL.csproj" />
+    <ProjectReference Include="..\DictionaryOfWords.DI\DictionaryOfWords.DI.csproj" />
     <ProjectReference Include="..\DictionaryOfWords.Service\DictionaryOfWords.Service.csproj" />
     <ProjectReference Include="..\DictionaryOfWords.SignalR\DictionaryOfWords.SignalR.csproj" />
   </ItemGroup>

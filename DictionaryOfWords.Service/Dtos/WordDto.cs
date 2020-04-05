@@ -6,6 +6,11 @@ namespace DictionaryOfWords.Service.Dtos
 {
     public class WordDto
     {
+        public WordDto()
+        {
+            WordTranslations = new List<WordTranslationDto>();
+            WordSources = new List<WordTranslationDto>();
+        }
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -21,10 +26,5 @@ namespace DictionaryOfWords.Service.Dtos
         public List<WordTranslationDto> WordTranslations { get; set; }
         public List<WordTranslationDto> WordSources { get; set; }
 
-        public WordDto()
-        {
-            WordTranslations = new List<WordTranslationDto>();
-            WordSources = new List<WordTranslationDto>();
-        }
     }
 }

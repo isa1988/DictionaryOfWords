@@ -1,28 +1,38 @@
 ﻿using DictionaryOfWords.Core.DataBase;
+using DictionaryOfWords.DAL.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace DictionaryOfWords.DAL.Data.Init
+namespace DictionaryOfWords.DAL
 {
-    public class DataDbInitializer
+    public class DataDbInitializer : IDbInitializer
     {
-        public async Task SeedAsync(IApplicationBuilder app)
+        public DataDbInitializer(IServiceProvider serviceProvider)
         {
-            using (var score = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var userManager = score.ServiceProvider.GetRequiredService<UserManager<User>>();
+            _serviceProvider = serviceProvider;
+        }
 
-                var roleManager = score.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+        private readonly IServiceProvider _serviceProvider;
+
+        public async void Initialize()
+        {
+            using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContextDictionaryOfWords>();
+                context.Database.EnsureCreated();
+                
+                var userManager = serviceScope.ServiceProvider.GetService<UserManager<User>>();
+
+                var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<Role>>();
 
                 if (!await roleManager.RoleExistsAsync("Admin"))
                 {
                     Role roleAdmin = new Role("Admin");
-                    await roleManager.CreateAsync(roleAdmin);
+                    roleManager.CreateAsync(roleAdmin).Wait();
                 }
 
                 if (!await roleManager.RoleExistsAsync("User"))

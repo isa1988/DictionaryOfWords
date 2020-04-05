@@ -5,8 +5,13 @@ using System.Text;
 
 namespace DictionaryOfWords.Core.DataBase
 {
-    public class Word : Entity
+    public class Word : EntityBase
     {
+        public Word()
+        {
+            WordTranslations = new List<WordTranslation>();
+            WordSources = new List<WordTranslation>();
+        }
         public string Name { get; set; }
         public int LanguageId { get; set; }
         public string Pronunciation { get; set; }
@@ -14,10 +19,5 @@ namespace DictionaryOfWords.Core.DataBase
         public virtual List<WordTranslation> WordTranslations { get; set; }
         public virtual List<WordTranslation> WordSources { get; set; }
 
-        public Word()
-        {
-            WordTranslations = new List<WordTranslation>();
-            WordSources = new List<WordTranslation>();
-        }
     }
 }

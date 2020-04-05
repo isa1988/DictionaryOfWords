@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DictionaryOfWords.Service.Dtos;
+using DictionaryOfWords.Service.Dtos.FilterDto;
 using DictionaryOfWords.Service.Services.Contracts;
 using DictionaryOfWords.Web.Models;
 using DictionaryOfWords.Web.Models.Word;
@@ -14,61 +16,48 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace DictionaryOfWords.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class WordController : BaseController
+    public class WordController : ControllerBaseWithFilter
     {
-        private readonly IWordService _service;
-
-        public WordController(IWordService service)
+        public WordController(IWordService service, ILanguageService serviceLanguage, IMapper mapper) : base(mapper)
         {
+            if (service == null)
+                throw new ArgumentNullException(nameof(service));
+            if (serviceLanguage == null)
+                throw new ArgumentNullException(nameof(serviceLanguage));
             _service = service;
+            _serviceLanguage = serviceLanguage;
         }
 
-        private ViewListModel GetViewListModel(string error, string name, string languageName)
-        {
-            var wordDtoList = _service.GetAllFilter(name, languageName);
-            var model = new ViewListModel();
-            var wordModelList = new List<WordDeleteModel>();
-            wordModelList.Add(new WordDeleteModel());
-            model.WordModels = wordModelList;
-            if (wordDtoList.Count != 0)
-            {
-                double pageCount = wordDtoList.Count / 20;
-                int pageTotalCount = (int)pageCount;
-                int pageRest = wordDtoList.Count % 20;
-                if (pageRest != 0)
-                {
-                    pageTotalCount++;
-                }
-                model.PageCount = pageTotalCount;
-            }
-            else
-            {
-                model.PageCount = 0;
-            }
-            model.PageSize = 20;
-            model.RowCount = 20;
-            model.Error = error;
-            model.WordFilter = new WordFilterModel { LanguageName = languageName, Name = name };
-            return model;
-        }
+        private readonly IWordService _service;
+        private readonly ILanguageService _serviceLanguage;
+
 
         public IActionResult Index()
         {
-            var model = GetViewListModel(string.Empty, string.Empty, string.Empty);
+            var model = GetViewListModel(new WordFilterModel());
             return View(model);
         }
 
         [HttpPost]
         public IActionResult Index(ViewListModel request)
         {
-            var model = GetViewListModel(string.Empty, request.WordFilter?.Name, request.WordFilter?.LanguageName);
+            var model = GetViewListModel(request.WordFilter);
             return View(model);
         }
 
         public IActionResult IndexError(ViewListModel request)
         {
-            var model = GetViewListModel(request.Error, request.WordFilter?.Name, request.WordFilter?.LanguageName);
+            var model = GetViewListModel(request.WordFilter, request.Error);
             return View("Index", model);
+        }
+
+        private ViewListModel GetViewListModel(WordFilterModel filter, string error = "")
+        {
+            var filterDto = _mapper.Map<WordFilterDto>(filter);
+            int dtoListCount = _service.GetCountOfAllFilter(filterDto);
+            var model = GetViewListModel(dtoListCount, error);
+            model.WordFilter = filter;
+            return model;
         }
 
         [HttpPost]
@@ -76,8 +65,9 @@ namespace DictionaryOfWords.Web.Controllers
         {
             if (request == null || request.WordFilter == null || 
                 string.IsNullOrWhiteSpace(request.WordFilter.Name) || string.IsNullOrWhiteSpace(request.WordFilter.LanguageName)) return Json(string.Empty);
-            var wordDtos = _service.GetAllOfPageFilter(1, 5, request.WordFilter.Name, request.WordFilter.LanguageName);
-            var wordModels = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtos);
+            var filter = _mapper.Map<WordFilterDto>(request.WordFilter);
+            var wordDtos = _service.GetAllOfPageFilter(filter, firstPageForDropList, sizeListOnPage);
+            var wordModels = _mapper.Map<List<WordDeleteModel>>(wordDtos);
             return Json(wordModels);
         }
 
@@ -85,10 +75,17 @@ namespace DictionaryOfWords.Web.Controllers
         [HttpPost]
         public ActionResult GetWordModelOfPage([FromBody] PageInfoNumberModel request)
         {
-            var wordDtos = request.WordFilter == null
-                          ? _service.GetAllOfPage(request.CurrentPage, 20)
-                          : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.WordFilter.Name, request.WordFilter.LanguageName);
-            var wordModels = AutoMapper.Mapper.Map<List<WordDeleteModel>>(wordDtos);
+            List<WordDto> wordDtos;
+            if (request.WordFilter == null)
+            {
+                wordDtos = _service.GetAllOfPage(request.CurrentPage, sizeListOnPage);
+            }
+            else
+            {
+                var filter = _mapper.Map<WordFilterDto>(request.WordFilter);
+                wordDtos = _service.GetAllOfPageFilter(filter, request.CurrentPage, sizeListOnPage);
+            }
+            var wordModels = _mapper.Map<List<WordDeleteModel>>(wordDtos);
             return Json(wordModels);
         }
 
@@ -107,7 +104,7 @@ namespace DictionaryOfWords.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(WordModel request)
         {
-            var wordDto = AutoMapper.Mapper.Map<WordDto>(request);
+            var wordDto = _mapper.Map<WordDto>(request);
 
             var result = await _service.CreateItemAsync(wordDto);
 
@@ -133,7 +130,7 @@ namespace DictionaryOfWords.Web.Controllers
 
             var wordDto = _service.GetByID(id.Value);
 
-            var word = AutoMapper.Mapper.Map<WordModel>(wordDto);
+            var word = _mapper.Map<WordModel>(wordDto);
             word.LanguageList = GetLanguageList();
             word.Title = "Редактирование";
 
@@ -145,7 +142,7 @@ namespace DictionaryOfWords.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(WordModel request)
         {
-            var wordDto = AutoMapper.Mapper.Map<WordDto>(request);
+            var wordDto = _mapper.Map<WordDto>(request);
 
             var result = await _service.EditItemAsync(wordDto);
 
@@ -198,7 +195,7 @@ namespace DictionaryOfWords.Web.Controllers
 
         private SelectList GetLanguageList()
         {
-            var languageList = _service.GetLanguageList();
+            var languageList = _serviceLanguage.GetAll();
             return new SelectList(languageList, "Id", "Name");
         }
     }

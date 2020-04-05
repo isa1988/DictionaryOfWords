@@ -10,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.DAL.Repositories
 {
-    public class Repository<T> : IRepository<T> where T : Entity
+    public class RepositoryBase<T> : IRepositoryBase<T> where T : EntityBase
     {
+        public RepositoryBase(DbContextDictionaryOfWords contextDictionaryOfWords)
+        {
+            _contextDictionaryOfWords = contextDictionaryOfWords;
+            _dbSet = _contextDictionaryOfWords.Set<T>();
+        }
         protected DbContextDictionaryOfWords _contextDictionaryOfWords;
         protected DbSet<T> _dbSet { get; set; }
 
         protected IQueryable<T> DbSetInclude { get; set; }
 
-        public Repository(DbContextDictionaryOfWords contextDictionaryOfWords)
-        {
-            _contextDictionaryOfWords = contextDictionaryOfWords;
-            _dbSet = _contextDictionaryOfWords.Set<T>();
-        }
 
         public async Task<T> AddAsync(T entity)
         {

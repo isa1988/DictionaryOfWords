@@ -11,55 +11,37 @@ using System.Net.Http;
 using DictionaryOfWords.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using DictionaryOfWords.Web.Models.Word;
+using DictionaryOfWords.Service.Dtos.FilterDto;
+using AutoMapper;
 
 namespace DictionaryOfWords.Web.Controllers
 {
-    public class WordTranslationController : BaseController
+    public class WordTranslationController : ControllerBaseWithFilter
     {
-        IHubContext<DictionaryOfWords.SignalR.ProgressHub> _progressHubContext;
-        IMultiAddToBaseService _serviceMultiAdd;
-        IWordTranslationService _service;
-
-        public WordTranslationController(IHubContext<DictionaryOfWords.SignalR.ProgressHub> progressHubContext, IMultiAddToBaseService serviceMultiAdd, IWordTranslationService service)
+        public WordTranslationController(IHubContext<DictionaryOfWords.SignalR.ProgressHub> progressHubContext, IMultiAddToBaseService serviceMultiAdd,
+                                        IWordTranslationService service, IMapper mapper) : base(mapper)
         {
+            if (progressHubContext == null)
+                throw new ArgumentNullException(nameof(progressHubContext));
+            if (serviceMultiAdd == null)
+                throw new ArgumentNullException(nameof(serviceMultiAdd));
+            if (service == null)
+                throw new ArgumentNullException(nameof(service));
             _progressHubContext = progressHubContext;
             _serviceMultiAdd = serviceMultiAdd;
             _service = service;
         }
-        private ViewListModel GetViewListModel(string error, string wordFrom, string languageFrom, string wordTo, string languageTo)
-        {
-            var wordTranslationDtoList = _service.GetAllFilter(wordFrom, languageFrom, wordTo, languageTo);
-            var model = new ViewListModel();
-            var wordTranslationModelList = new List<WordTranslationModel>();
-            wordTranslationModelList.Add(new WordTranslationModel());
-            model.WordTranslationModels = wordTranslationModelList;
-            if (wordTranslationDtoList.Count != 0)
-            {
-                double pageCount = wordTranslationDtoList.Count / 20;
-                int pageTotalCount = (int)pageCount;
-                int pageRest = wordTranslationDtoList.Count % 20;
-                if (pageRest != 0)
-                {
-                    pageTotalCount++;
-                }
-                model.PageCount = pageTotalCount;
-            }
-            else
-            {
-                model.PageCount = 0;
-            }
-            model.PageSize = 20;
-            model.RowCount = 20;
-            model.Error = error;
-            model.WordTranslationFilter = new WordTranslationFilterModel { WordFrom = wordFrom, LanguageFrom = languageFrom, WordTo = wordTo, LanguageTo = languageTo };
-            return model;
-        }
+
+        private readonly IHubContext<DictionaryOfWords.SignalR.ProgressHub> _progressHubContext;
+        private readonly IMultiAddToBaseService _serviceMultiAdd;
+        private readonly IWordTranslationService _service;
 
 
+        
         [Authorize(Roles = "User")]
         public IActionResult IndexUser()
         {
-            var model = GetViewListModel(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var model = GetViewListModel(new WordTranslationFilterModel());
             return View(model);
         }
 
@@ -67,15 +49,14 @@ namespace DictionaryOfWords.Web.Controllers
         [HttpPost]
         public IActionResult IndexUser(ViewListModel request)
         {
-            var model = GetViewListModel(string.Empty, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
-                                                       request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
+            var model = GetViewListModel(request.WordTranslationFilter);
             return View(model);
         }
 
         [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
-            var model = GetViewListModel(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var model = GetViewListModel(new WordTranslationFilterModel());
             return View(model);
         }
 
@@ -83,28 +64,42 @@ namespace DictionaryOfWords.Web.Controllers
         [HttpPost]
         public IActionResult Index(ViewListModel request)
         {
-            var model = GetViewListModel(string.Empty, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
-                                                       request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
+            var model = GetViewListModel(request.WordTranslationFilter);
             return View(model);
         }
 
         [Authorize(Roles = "Admin")]
         public IActionResult IndexError(ViewListModel request)
         {
-            var model = GetViewListModel(request.Error, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
-                                                       request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
+            var model = GetViewListModel(request.WordTranslationFilter, request.Error);
             return View("Index", model);
+        }
+
+        private ViewListModel GetViewListModel(WordTranslationFilterModel filter, string error = "")
+        {
+            var filterDto = _mapper.Map<WordTranslationFilterDto>(filter);
+            int dtoListCount = _service.GetCountOfAllFilter(filterDto);
+            var model = GetViewListModel(dtoListCount, error);
+            model.WordTranslationFilter = filter;
+            return model;
         }
 
         [Authorize(Roles = "Admin, User")]
         [HttpPost]
         public ActionResult GetDataOfPage([FromBody] PageInfoNumberModel request)
         {
-            var wordTranslationDtos = request.WordTranslationFilter == null
-                          ? _service.GetAllOfPage(request.CurrentPage, 20)
-                          : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.WordTranslationFilter?.WordFrom, request.WordTranslationFilter?.LanguageFrom,
-                                                        request.WordTranslationFilter?.WordTo, request.WordTranslationFilter?.LanguageTo);
-            var wordTranslationModels = AutoMapper.Mapper.Map<List<WordTranslationModel>>(wordTranslationDtos);
+            List<WordTranslationDto> wordTranslationDtos;
+            if (request.WordTranslationFilter == null)
+            {
+                wordTranslationDtos = _service.GetAllOfPage(request.CurrentPage, sizeListOnPage);
+            }
+            else
+            {
+                var filter = _mapper.Map<WordTranslationFilterDto>(request.WordTranslationFilter);
+                wordTranslationDtos = _service.GetAllOfPageFilter(filter, request.CurrentPage, sizeListOnPage);
+            }
+                          
+            var wordTranslationModels = _mapper.Map<List<WordTranslationModel>>(wordTranslationDtos);
             return Json(wordTranslationModels);
         }
 
@@ -154,7 +149,7 @@ namespace DictionaryOfWords.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create (WordTranslationAddOrEditModel request)
         {
-            var wordTranslation = AutoMapper.Mapper.Map<WordTranslationDto>(request);
+            var wordTranslation = _mapper.Map<WordTranslationDto>(request);
             var result = await _service.CreateItemAsync(wordTranslation);
 
             if (result.IsSuccess)
@@ -178,8 +173,8 @@ namespace DictionaryOfWords.Web.Controllers
         public IActionResult AddALot([FromBody] AddMultiModel request)
         {
             _serviceMultiAdd.DoGenerate(_progressHubContext, request.Text);
-            request.WordMultiModelList = AutoMapper.Mapper.Map<List<WordMultiModel>>(_serviceMultiAdd.WordTranslations);
-            request.WordModelList = AutoMapper.Mapper.Map<List<WordModel>>(_serviceMultiAdd.Words);
+            request.WordMultiModelList = _mapper.Map<List<WordMultiModel>>(_serviceMultiAdd.WordTranslations);
+            request.WordModelList = _mapper.Map<List<WordModel>>(_serviceMultiAdd.Words);
             return Ok(request);
         }
     }

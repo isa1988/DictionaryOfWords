@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DictionaryOfWords.DAL.Migrations
 {
     [DbContext(typeof(DbContextDictionaryOfWords))]
-    [Migration("20200304173622_ChangaTableTranslete")]
-    partial class ChangaTableTranslete
+    [Migration("20200405223239_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -5,11 +5,12 @@ using System.Text;
 using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.Core.Repositories;
 using DictionaryOfWords.DAL.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace DictionaryOfWords.DAL.Repositories
 {
-    public class LanguageRepository : Repository<Language>, ILanguageRepository
+    public class LanguageRepository : RepositoryBase<Language>, ILanguageRepository
     {
         public LanguageRepository(DbContextDictionaryOfWords contextDictionaryOfWords) : base(contextDictionaryOfWords)
         {
@@ -39,7 +40,7 @@ namespace DictionaryOfWords.DAL.Repositories
             IQueryable<Language> languages = _dbSet;
             if (!string.IsNullOrWhiteSpace(name))
             {
-                languages = languages.Where(x => x.Name.Contains(name));
+                languages = languages.Where(x => EF.Functions.Like(x.Name, name.Like()));
             }
             return languages;
         }

@@ -2,6 +2,7 @@
 using DictionaryOfWords.Core.DataBase;
 using DictionaryOfWords.DAL.Unit.Contracts;
 using DictionaryOfWords.Service.Dtos;
+using DictionaryOfWords.Service.Dtos.FilterDto;
 using DictionaryOfWords.Service.Services.Contracts;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ using System.Text;
 
 namespace DictionaryOfWords.Service.Services
 {
-    public class WordTranslationService : GeneralServiceDto<WordTranslation, WordTranslationDto>, IWordTranslationService
+    public class WordTranslationService : GeneralService<WordTranslation, WordTranslationDto, WordTranslationFilterDto>, IWordTranslationService
     {
-        public WordTranslationService(IUnitOfWorkFactory unitOfWorkFactory) : base(unitOfWorkFactory, new WordTranslationDto())
+        public WordTranslationService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper) : base(unitOfWorkFactory, new WordTranslationDto(), mapper)
         {
 
         }
@@ -25,7 +26,7 @@ namespace DictionaryOfWords.Service.Services
                 {
                     return new List<WordTranslationDto>();
                 }
-                List<WordTranslationDto> retList = Mapper.Map<List<WordTranslationDto>>(wordTranslationList);
+                List<WordTranslationDto> retList = _mapper.Map<List<WordTranslationDto>>(wordTranslationList);
                 return retList;
             }
         }
@@ -38,7 +39,7 @@ namespace DictionaryOfWords.Service.Services
                 {
                     return new List<WordTranslationDto>();
                 }
-                List<WordTranslationDto> retList = Mapper.Map<List<WordTranslationDto>>(wordTranslationList);
+                List<WordTranslationDto> retList = _mapper.Map<List<WordTranslationDto>>(wordTranslationList);
                 return retList;
             }
         }
@@ -87,7 +88,7 @@ namespace DictionaryOfWords.Service.Services
             {
                 Word value = unitOfWork.GetRepository<Word>().GetById(id);
                 if (value == null) return new WordTranslationDto();
-                WordTranslationDto dto = Mapper.Map<WordTranslationDto>(value);
+                WordTranslationDto dto = _mapper.Map<WordTranslationDto>(value);
                 return dto;
 
             }
@@ -102,24 +103,26 @@ namespace DictionaryOfWords.Service.Services
         {
             return string.Empty;
         }
-
-        public List<WordTranslationDto> GetAllFilter(string wordFrom, string languageFrom, string wordTo, string languageTo)
+        
+        public override List<WordTranslationDto> GetAllFilter(WordTranslationFilterDto filter)
         {
+            if (filter == null)
+                return new List<WordTranslationDto>();
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                var wordTranslationList = unitOfWork.WordTranslation.GetAllFilter(wordFrom, languageFrom, wordTo, languageTo);
+                var wordTranslationList = unitOfWork.WordTranslation.GetAllFilter(filter.WordFrom, filter.LanguageFrom, filter.WordTo, filter.LanguageTo);
                 if (wordTranslationList.Count == 0) return new List<WordTranslationDto>();
-                return AutoMapper.Mapper.Map<List<WordTranslationDto>>(wordTranslationList);
+                return _mapper.Map<List<WordTranslationDto>>(wordTranslationList);
             }
         }
 
-        public List<WordTranslationDto> GetAllOfPageFilter(int pageNumber, int rowCount, string wordFrom, string languageFrom, string wordTo, string languageTo)
+        public override List<WordTranslationDto> GetAllOfPageFilter(WordTranslationFilterDto filter, int pageNumber, int rowCount)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                var wordTranslationList = unitOfWork.WordTranslation.GetAllOfPageFilter(pageNumber, rowCount, wordFrom, languageFrom, wordTo, languageTo);
+                var wordTranslationList = unitOfWork.WordTranslation.GetAllOfPageFilter(pageNumber, rowCount, filter.WordFrom, filter.LanguageFrom, filter.WordTo, filter.LanguageTo);
                 if (wordTranslationList.Count == 0) return new List<WordTranslationDto>();
-                return AutoMapper.Mapper.Map<List<WordTranslationDto>>(wordTranslationList);
+                return _mapper.Map<List<WordTranslationDto>>(wordTranslationList);
             }
         }
     }

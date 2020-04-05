@@ -10,16 +10,16 @@ namespace DictionaryOfWords.DAL.Data
 {
     public class DbContextDictionaryOfWords : IdentityDbContext<User, Role, int>
     { 
+        public DbContextDictionaryOfWords(DbContextOptions<DbContextDictionaryOfWords> options)
+            : base(options)
+        {
+        }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Word> Words { get; set; }
         public DbSet<Language> Languages { get; set; }
         public DbSet<WordTranslation> WordTranslations { get; set; }
 
-        public DbContextDictionaryOfWords(DbContextOptions<DbContextDictionaryOfWords> options)
-            : base(options)
-        {
-        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

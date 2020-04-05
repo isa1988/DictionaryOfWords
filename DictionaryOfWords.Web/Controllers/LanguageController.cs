@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DictionaryOfWords.Service.Dtos;
+using DictionaryOfWords.Service.Dtos.FilterDto;
 using DictionaryOfWords.Service.Services.Contracts;
 using DictionaryOfWords.Web.Models;
 using DictionaryOfWords.Web.Models.Language;
@@ -13,85 +15,70 @@ using Microsoft.AspNetCore.Mvc;
 namespace DictionaryOfWords.Web.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class LanguageController : BaseController
+    public class LanguageController : ControllerBaseWithFilter
     {
-        private readonly ILanguageService _service;
-
-        public LanguageController(ILanguageService service)
+        public LanguageController(ILanguageService service, IMapper mapper) : base(mapper)
         {
+            if (service == null)
+                throw new ArgumentNullException(nameof(service));
             _service = service;
         }
 
-        // GET: Language
-        private ViewListModel GetViewListModel(string error, string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                name = string.Empty;
-            }
-            var languageDtoList = _service.GetAllFilter(name);
-            var model = new ViewListModel();
-            var languageModelList = new List<LanguageModel>();
-            languageModelList.Add(new LanguageModel());
-            model.LanguageModels = languageModelList;
-            if (languageDtoList.Count != 0)
-            {
-                double pageCount = languageDtoList.Count / 20;
-                int pageTotalCount = (int)pageCount;
-                int pageRest = languageDtoList.Count % 20;
-                if (pageRest != 0)
-                {
-                    pageTotalCount++;
-                }
-                model.PageCount = pageTotalCount;
-            }
-            else
-            {
-                model.PageCount = 0;
-            }
-            model.PageSize = 20;
-            model.RowCount = 20;
-            model.Error = error;
-            model.LanguageFilter = new LanguageFilterModel { Name = name };
-            return model;
-        }
+        private readonly ILanguageService _service;
+
 
         public IActionResult Index()
         {
-            var model = GetViewListModel(string.Empty, string.Empty);
+            var model = GetViewListModel(new LanguageFilterModel());
             return View(model);
         }
 
         [HttpPost]
         public IActionResult Index(ViewListModel request)
         {
-            var model = GetViewListModel(string.Empty, request.LanguageFilter?.Name);
+            var model = GetViewListModel(request.LanguageFilter);
             return View(model);
         }
 
         public IActionResult IndexError(ViewListModel request)
         {
-            var model = GetViewListModel(request.Error, request.LanguageFilter?.Name);
+            var model = GetViewListModel(request.LanguageFilter, request.Error);
             return View("Index", model);
         }
 
+        private ViewListModel GetViewListModel(LanguageFilterModel filter, string error = "")
+        {
+            var filterDto = _mapper.Map<LanguageFilterDto>(filter);
+            int dtoListCount = _service.GetCountOfAllFilter(filterDto);
+            var model = GetViewListModel(dtoListCount, error);
+            model.LanguageFilter = filter;
+            return model;
+        }
 
         [HttpPost]
         public ActionResult GetLanguagesFiveLines([FromBody] PageInfoNumberModel request)
         {
             if (request == null || request.LanguageFilter == null || string.IsNullOrWhiteSpace(request.LanguageFilter.Name)) return Json(string.Empty);
-            var languageDtos = _service.GetAllOfPageFilter(1, 5, request.LanguageFilter.Name);
-            var languageModels = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtos);
+            var filter = _mapper.Map<LanguageFilterDto>(request.LanguageFilter);
+            var languageDtos = _service.GetAllOfPageFilter(filter, firstPageForDropList, sizqListOnPageForDropList);
+            var languageModels = _mapper.Map<List<LanguageModel>>(languageDtos);
             return Json(languageModels);
         }
 
         [HttpPost]
         public ActionResult GetLanguageModelOfPage([FromBody] PageInfoNumberModel request)
         {
-            var languageDtos = request.LanguageFilter == null
-                          ? _service.GetAllOfPage(request.CurrentPage, 20)
-                          : _service.GetAllOfPageFilter(request.CurrentPage, 20, request.LanguageFilter.Name);
-            var languageModels = AutoMapper.Mapper.Map<List<LanguageModel>>(languageDtos);
+            List<LanguageDto> languageDtos;
+            if (request.LanguageFilter == null)
+            {
+                languageDtos = _service.GetAllOfPage(request.CurrentPage, sizeListOnPage);
+            }
+            else
+            {
+                var filter = _mapper.Map<LanguageFilterDto>(request.LanguageFilter);
+                languageDtos = _service.GetAllOfPageFilter(filter, request.CurrentPage, sizeListOnPage);
+            }
+            var languageModels = _mapper.Map<List<LanguageModel>>(languageDtos);
             return Json(languageModels);
         }
 
@@ -106,7 +93,7 @@ namespace DictionaryOfWords.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(LanguageModel request)
         {
-            var languageDto = AutoMapper.Mapper.Map<LanguageDto>(request);
+            var languageDto = _mapper.Map<LanguageDto>(request);
 
             var result = await _service.CreateItemAsync(languageDto);
 
@@ -131,7 +118,7 @@ namespace DictionaryOfWords.Web.Controllers
 
             var languageDto = _service.GetByID(id.Value);
 
-            var language = AutoMapper.Mapper.Map<LanguageModel>(languageDto);
+            var language = _mapper.Map<LanguageModel>(languageDto);
             language.Title = "Редактирование";
 
             return View(language);
@@ -142,7 +129,7 @@ namespace DictionaryOfWords.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(LanguageModel request)
         {
-            var languageDto = AutoMapper.Mapper.Map<LanguageDto>(request);
+            var languageDto = _mapper.Map<LanguageDto>(request);
             
             var result = await _service.EditItemAsync(languageDto);
 

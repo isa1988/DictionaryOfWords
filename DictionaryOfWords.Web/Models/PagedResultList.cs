@@ -8,6 +8,11 @@ namespace DictionaryOfWords.Web.Models
 {
     public abstract class PagedResultList : PageInfoModel
     {
+        public PagedResultList()
+        {
+            RowCount = 20;
+            CurrentPage = 1;
+        }
         [JsonProperty(PropertyName = "currentPage")]
         public int CurrentPage { get; set; }
 
@@ -20,10 +25,5 @@ namespace DictionaryOfWords.Web.Models
         [JsonProperty(PropertyName = "rowCount")]
         public int RowCount { get; set; }
 
-        public PagedResultList()
-        {
-            RowCount = 20;
-            CurrentPage = 1;
-        }
     }
 }

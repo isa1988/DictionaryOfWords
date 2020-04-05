@@ -8,13 +8,14 @@ namespace DictionaryOfWords.DAL.Data
 {
     public class DbContextFactory : IDbContextFactory
     {
-        private readonly DbContextOptions<DbContextDictionaryOfWords> _options;
-
         public DbContextFactory(
             DbContextOptions<DbContextDictionaryOfWords> options)
         {
             _options = options;
         }
+
+        private readonly DbContextOptions<DbContextDictionaryOfWords> _options;
+
 
         public DbContextDictionaryOfWords Create()
         {
