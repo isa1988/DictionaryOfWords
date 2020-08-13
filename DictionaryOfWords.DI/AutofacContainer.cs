@@ -11,6 +11,9 @@ using System.Reflection;
 
 namespace DictionaryOfWords.DI
 {
+    // Создавать целую сборку под единственный публичный метод, как по мне, избыточно.
+    // Если двигаться таким путем, то солюшн может быстро обрости мелкими DLL-ками с очень ограниченным функционалом.
+    // Это не так плохо - разделять код по ответственности, но баланс между читаемостью кода и разделением тоже нужно искать.
     public class AutofacContainer
     {
         public IContainer Build(IServiceCollection services)
@@ -24,6 +27,7 @@ namespace DictionaryOfWords.DI
                 .OrderByDescending(a => a.FullName)
                 .ToArray();
 
+            // builder и так референсный тип, так что ref не нужен.
             ServicesRegister(ref builder, assemblies);
             RepositoriesRegister(ref builder, assemblies);
 
@@ -33,6 +37,8 @@ namespace DictionaryOfWords.DI
         private void ServicesRegister(ref ContainerBuilder builder, Assembly[] assemblies)
         {
             var servicesAssembly = assemblies.FirstOrDefault(t => t.FullName.ToLower().Contains("dictionaryofwords.service"));
+
+            // Из-за FirstOrDefault ты можешь вызвать NRE здесь.
             builder.RegisterAssemblyTypes(servicesAssembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();
@@ -44,6 +50,8 @@ namespace DictionaryOfWords.DI
                 .As(typeof(IRepositoryBase<>));
 
             var dataAssembly = assemblies.FirstOrDefault(t => t.FullName.ToLower().Contains("dictionaryofwords.dal"));
+
+            // Из-за FirstOrDefault ты можешь вызвать NRE здесь.
             builder.RegisterAssemblyTypes(dataAssembly)
                 .Where(t => t.Name.EndsWith("Repository"))
                 .AsImplementedInterfaces();

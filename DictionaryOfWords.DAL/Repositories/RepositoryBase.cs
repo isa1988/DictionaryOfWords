@@ -31,6 +31,12 @@ namespace DictionaryOfWords.DAL.Repositories
         }
         private IQueryable<T> GetInclude()
         {
+            // Если ты хочешь, чтобы клиенты твоего репозитория могли инклюдить в каждом репозитории свои нужные сущности,
+            // А результат использовать в этом классе, то лучше создать свойство DbSetInclude либо асбтрактным, либо виртуальным, чтобы
+            // эти самые клиенты не инициировали эту переменную DbSetInclude так. как делают сейчас.
+            // Получается, что если кто-то зафакапит иниициацию в своем репозитории этой переменной, то он всегда
+            // будет работать с незаинклюженным сетом.
+            // А вот необходимость реализовать абстрактный метод вынудит его это сделать со 100%-ной гарантией
             return DbSetInclude != null ? DbSetInclude : _dbSet;
         }
 
@@ -41,6 +47,7 @@ namespace DictionaryOfWords.DAL.Repositories
 
         public virtual List<T> GetAllOfPage(int pageNumber, int rowCount)
         {
+            // Снова код пагинации. Экстеншн метод
             int startIndex = (pageNumber - 1) * rowCount;
             return GetInclude()
                    .Skip(startIndex)
@@ -55,6 +62,9 @@ namespace DictionaryOfWords.DAL.Repositories
 
         public async Task<List<T>> GetAllOfIdAsync(List<int> idList)
         {
+            // Лучше применить метод idList.Contains(x.Id),
+            // тогда EF провайдер сделать SQL команду с контейнсом. Здесь же я подозреваю, что
+            // создается выборка на всю таблицу, а уже в памяти приоржения происходить определение, какие строки вернуть
             return await GetInclude().Where(x => idList.Any(n => n == x.Id)).ToListAsync();
         }
 
@@ -65,20 +75,20 @@ namespace DictionaryOfWords.DAL.Repositories
 
         public void Update(T entity)
         {
+            // А как же сохранение контекста SaveChanges?
             _dbSet.Update(entity);
         }
 
         public void Delete(T entity)
         {
+            // А как же сохранение контекста SaveChanges?
             _dbSet.Remove(entity);
         }
 
         public void DeleteALot(List<T> entityList)
         {
-            for (int i = 0; i < entityList.Count; i++)
-            {
-                _dbSet.Remove(entityList[i]);
-            }
+            // Можно проще
+            _dbSet.RemoveRange(entityList);
         }
     }
 }

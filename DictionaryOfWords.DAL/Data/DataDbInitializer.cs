@@ -18,6 +18,11 @@ namespace DictionaryOfWords.DAL
 
         private readonly IServiceProvider _serviceProvider;
 
+        // Заведи себе за правило Никогда не использовать сигнатуру async void.
+        // Всегда async Task
+        // Когда ты используешь async void, то в месте вызова ты перестаешь ожидать результат выполнения всего этого метода,
+        // И в итоге у тебя получится некая извращенная многопоточность, но только вот из этого потока ты не вытащишь
+        // ни результат выполнения, ни эксепшн, если он тут произойдет.
         public async void Initialize()
         {
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
@@ -32,7 +37,9 @@ namespace DictionaryOfWords.DAL
                 if (!await roleManager.RoleExistsAsync("Admin"))
                 {
                     Role roleAdmin = new Role("Admin");
-                    roleManager.CreateAsync(roleAdmin).Wait();
+
+                    // У тебя асинхронный метод, используй асинхронные вызовы
+                    await roleManager.CreateAsync(roleAdmin);
                 }
 
                 if (!await roleManager.RoleExistsAsync("User"))
@@ -54,6 +61,10 @@ namespace DictionaryOfWords.DAL
                     };
 
                     var result = await userManager.CreateAsync(user, "123456");
+
+                    // Вопрос к логическому алгоритму.
+                    // А если юзер не создался, то что должно произойти?
+                    // Я бы добавил выброс исключения, чтобы клиенты твоего кода понимали, что произошла ошибка
                     if (result.Succeeded)
                     {
                         await userManager.AddToRoleAsync(user, "Admin");

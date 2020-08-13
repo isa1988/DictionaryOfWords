@@ -55,6 +55,8 @@ namespace DictionaryOfWords.Service.Services
             {
                 var wordList = unitOfWork.Word.GetAllFilter(filter.Name, filter.LanguageName);
                 if (wordList.Count == 0) return new List<WordDto>();
+
+                // Можно обойтись и без проверки на Count == 0, а сразу направить объект в маппер. Тогда он сгенерит пустую коллекцию
                 return _mapper.Map<List<WordDto>>(wordList);
             }
         }

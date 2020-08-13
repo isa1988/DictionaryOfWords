@@ -23,6 +23,7 @@ namespace DictionaryOfWords.Service.Dtos
 
         public bool IsAdd { get; set; }
 
+        // Уже писал про интерфейс ICollection
         public List<WordTranslationDto> WordTranslations { get; set; }
         public List<WordTranslationDto> WordSources { get; set; }
 

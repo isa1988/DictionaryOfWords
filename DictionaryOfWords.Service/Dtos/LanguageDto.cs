@@ -8,6 +8,7 @@ namespace DictionaryOfWords.Service.Dtos
     {
         public LanguageDto()
         {
+            // Уже писал про инициацию имени в конструкторе.
             Name = string.Empty;
         }
         public int Id { get; set; }
