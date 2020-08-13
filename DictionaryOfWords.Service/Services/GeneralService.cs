@@ -17,16 +17,12 @@ namespace DictionaryOfWords.Service.Services
     {
         public GeneralService(IUnitOfWorkFactory unitOfWorkFactory, TDto empty, IMapper mapper)
         {
-            if (unitOfWorkFactory == null)
-                throw new ArgumentNullException(nameof(unitOfWorkFactory));
             if (empty == null)
                 throw new ArgumentNullException(nameof(empty));
-            if (mapper == null)
-                throw new ArgumentNullException(nameof(mapper));
 
-            _unitOfWorkFactory = unitOfWorkFactory;
+            _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
             _dtoEmpty = empty;
-            _mapper = mapper;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -38,6 +34,9 @@ namespace DictionaryOfWords.Service.Services
 
         public async Task<EntityOperationResult<TBase>> CreateItemAsync(TDto basketCreateDto)
         {
+            // Валидацию модели можно сделать через атрибуты валидации, которые ты вешаешь на свойства класса.
+            // Взывать проверку на основе атрибутов можно своим кодом. Я уже такой писал:
+            // https://github.com/maximgorbatyuk/net-blank-app/blob/master/src/Utils/Validators/EntityValidator.cs
             string errors = CheckAndGetErrors(basketCreateDto);
             if (!string.IsNullOrEmpty(errors))
             {
@@ -55,6 +54,13 @@ namespace DictionaryOfWords.Service.Services
                 }
                 catch (Exception ex)
                 {
+                    // Если ты хочешь использовать подход с классом-прокси EntityOperationResult,
+                    // То я бы сохранял и передавал выше еще и сам объект ex, потому что в эксепшене важно не только месседж,
+                    // но и стектрейс, и дополнительная инфа, и тип класса исключения.
+                    // Но я бы отказался от такого прокси-класса и пробрасывал бы исключение наверх дальше, даже
+                    // не отлавливая его здесь.
+                    // Исключения ты отлавливаешь в одной точке - в созданной специально для этого middleware.
+                    // а узнать, что это такое, ты можешь либо из нашего курса, либо на сайте metanit.com
                     return EntityOperationResult<TBase>.Failure().AddError(ex.Message);
                 }
             }

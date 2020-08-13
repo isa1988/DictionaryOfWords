@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 namespace DictionaryOfWords.DAL.Unit
 {
 
+    // Я лично не очень разделяю радость от использования паттерна UnitOfWork, потому что считаю,
+    // что сам DatabaseContext уже и есть UoF,
+    // поэтому создавать такую же абстракцию над ним не нужно. Но если ты хочешь, то ок.
     public class UnitOfWork : IUnitOfWork
     {
         public UnitOfWork(DbContextDictionaryOfWords contextDictionaryOfWords)
@@ -20,6 +23,7 @@ namespace DictionaryOfWords.DAL.Unit
             _contextDictionaryOfWords = contextDictionaryOfWords;
             _repositories = new ConcurrentDictionary<Type, object>();
 
+            // Лучше было бы инъектить их через конструктор из DI.
             Language = new LanguageRepository(contextDictionaryOfWords);
             Word = new WordRepository(contextDictionaryOfWords);
             WordTranslation = new WordTranslationRepository(contextDictionaryOfWords);
@@ -55,6 +59,14 @@ namespace DictionaryOfWords.DAL.Unit
 
         public void CommitTransaction()
         {
+            // Если кто-то вызвал в своем коде этот метод CommitTransaction() без предварительного вызова BeginTransaction(),
+            // то лучше ему это показать, выбросив эксепшн. Пусть клиенты твоео кода учатся работать с ним.
+            // Так они быстро поймут, как работать с кодом.
+            // Также они могли просто забыть вызвать где-то в своих методах инициацию транзакции,
+            // а ты своим эксепшеном указал на это.
+            // Сейчас же ты игноришь проблему просто, и это может привести к неожиданному поведению системы,
+            // когда подьзователь заполняет форму создания какой-то модели, жмет на кнопку "сохранить",
+            // не видит ни одной ошибки сайта, но модель не создана.
             if (_transaction == null) return;
 
             _transaction.Commit();
@@ -70,6 +82,7 @@ namespace DictionaryOfWords.DAL.Unit
 
         public void RollbackTransaction()
         {
+            // См коммент к методу public void CommitTransaction()
             if (_transaction == null) return;
 
             _transaction.Rollback();

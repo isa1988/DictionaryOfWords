@@ -20,6 +20,14 @@ namespace DictionaryOfWords.DAL.Repositories
 
         public bool IsNameReplay(int id, string name, int languageId, bool isNew)
         {
+            // Судя по алгоритму, у тебя не может быть двух одинаковых комбинаций name + languageId.
+            // Если так, то смысла передавать сюда флаг isNew и айдишник id нет абсолютно, потому что не это избыточно.
+            // Достаточно просто оставить поиск уже существующего слова по совпадению.
+            // Причем вызывать такую проверку лучше только при добавлении нового слова. при апдейте ты уже себя обезопасил,
+            // Что в базу не попадают дубликаты.
+            // НУ а гарантией правильной работы метода вставки нового слова станут юниттесты
+
+            // Забываешь о валидации. А вдруг в метод прислали null в качестве name?
             if (isNew)
             {
                 return _dbSet.Any(x => x.Name.Trim().ToLower() == name.Trim().ToLower() && x.LanguageId == languageId);
@@ -55,6 +63,7 @@ namespace DictionaryOfWords.DAL.Repositories
             return words;
         }
 
+        // Везде и ниже лучше предпочесть асинхронные аналоги методов
         public List<Word> GetAllFilter(string name, string languageName)
         {
             var words = GetFilter(name, languageName)

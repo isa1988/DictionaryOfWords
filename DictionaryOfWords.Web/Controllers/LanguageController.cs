@@ -58,6 +58,9 @@ namespace DictionaryOfWords.Web.Controllers
         [HttpPost]
         public ActionResult GetLanguagesFiveLines([FromBody] PageInfoNumberModel request)
         {
+            // Если что-то невалидно в модели и уж тем более нам присылают null в качестве пэйлоада,
+            // то нужно не бояться показать ошибку и выбросить эксепшн тут же.
+            // А иначе клиент твоего бэкенда никак не понимает, почему сервер отвечает кодом 200 и возвращает пустую строку.
             if (request == null || request.LanguageFilter == null || string.IsNullOrWhiteSpace(request.LanguageFilter.Name)) return Json(string.Empty);
             var filter = _mapper.Map<LanguageFilterDto>(request.LanguageFilter);
             var languageDtos = _service.GetAllOfPageFilter(filter, firstPageForDropList, sizqListOnPageForDropList);
@@ -147,6 +150,9 @@ namespace DictionaryOfWords.Web.Controllers
 
         public async Task<IActionResult> DeleteMultiJson([FromBody] ViewListModel request)
         {
+            // Не очень понимаю, зачем присылать на бэк в метод УдалиИх все сущности с фронта, но только лишь часть из них
+            // пометить как "на удаление"? Будет круче и чище, если сразу в метод удаления присылать именно те айдишники, которые
+            // ты хочешь удалить.
             List<LanguageModel> languageModels = request.LanguageModels.Where(x => x.IsDelete).ToList();
             if (languageModels?.Count > 0)
             {

@@ -25,6 +25,7 @@ namespace DictionaryOfWords.DAL.Repositories
 
         public bool IsNameReplay(int id, string name, bool isNew)
         {
+            // Написал коммент к такому же методу в другом репозитории
             if (isNew)
             {
                 return _dbSet.Any(x => x.Name.Trim().ToLower() == name.Trim().ToLower());
@@ -47,6 +48,7 @@ namespace DictionaryOfWords.DAL.Repositories
 
         public List<Language> GetAllOfPageFilter(int pageNumber, int rowCount, string name)
         {
+            // Код пагинации повторяется. Думаю, это хороший кандидат на создание экстеншн-метода
             int startIndex = (pageNumber - 1) * rowCount;
             var languages = GetFilter(name)
                         .Skip(startIndex)
