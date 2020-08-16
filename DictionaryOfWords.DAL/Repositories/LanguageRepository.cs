@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace DictionaryOfWords.DAL.Repositories
 {
-    public class LanguageRepository : RepositoryBase<Language>, ILanguageRepository
+    public class LanguageRepository : RepositoryBase<Language, int>, ILanguageRepository
     {
         public LanguageRepository(DbContextDictionaryOfWords contextDictionaryOfWords) : base(contextDictionaryOfWords)
         {

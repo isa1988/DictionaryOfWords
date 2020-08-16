@@ -19,6 +19,9 @@ namespace DictionaryOfWords.DAL.Unit.Contracts
         void RollbackTransaction();
         void CommitTransaction();
 
-        IRepositoryBase<TEntity> GetRepository<TEntity>() where TEntity : EntityBase;
+        IRepository<T> GetRepository<T>() where T : class, IEntity;
+        IRepository<T, TId> GetRepository<T, TId>()
+            where T : class, IEntity<TId>
+            where TId : IEquatable<TId>;
     }
 }

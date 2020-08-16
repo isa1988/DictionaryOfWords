@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DictionaryOfWords.Service
 {
-    public class EntityOperationResult<T> where T : EntityBase
+    public class EntityOperationResult<T> where T : IEntity
     {
         private EntityOperationResult(T entity)
         {

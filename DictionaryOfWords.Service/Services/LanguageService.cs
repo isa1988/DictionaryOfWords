@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Service.Services
 {
-    public class LanguageService : GeneralService<Language, LanguageDto, LanguageFilterDto>, ILanguageService
+    public class LanguageService : GeneralServiceWithId<Language, LanguageDto, LanguageFilterDto>, ILanguageService
     {
         public LanguageService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper) : base(unitOfWorkFactory, new LanguageDto(), mapper)
         {

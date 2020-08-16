@@ -5,7 +5,7 @@ using DictionaryOfWords.Core.DataBase;
 
 namespace DictionaryOfWords.Core.Repositories
 {
-    public interface IWordRepository : IRepositoryBase<Word>
+    public interface IWordRepository : IRepository<Word, int>
     {
         bool IsNameReplay(int id, string name, int languageId, bool isNew);
 

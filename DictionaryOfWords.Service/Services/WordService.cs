@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Service.Services
 {
-    public class WordService : GeneralService<Word, WordDto, WordFilterDto>, IWordService
+    public class WordService : GeneralServiceWithId<Word, WordDto, WordFilterDto>, IWordService
     {
         public WordService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper) : base(unitOfWorkFactory, new WordDto(), mapper)
         {
@@ -113,7 +113,7 @@ namespace DictionaryOfWords.Service.Services
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                Word value = unitOfWork.GetRepository<Word>().GetById(id);
+                Word value = unitOfWork.GetRepository<Word, int>().GetById(id);
                 if (value == null) return new WordDto();
                 WordDto dto = _mapper.Map<WordDto>(value);
                 return dto;

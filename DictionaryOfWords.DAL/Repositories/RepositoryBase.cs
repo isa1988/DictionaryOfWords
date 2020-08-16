@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.DAL.Repositories
 {
-    public class RepositoryBase<T> : IRepositoryBase<T> where T : EntityBase
+    public class RepositoryBase<T> : IRepository<T> where T : class, IEntity
     {
         public RepositoryBase(DbContextDictionaryOfWords contextDictionaryOfWords)
         {
@@ -29,7 +29,7 @@ namespace DictionaryOfWords.DAL.Repositories
 
             return entry.Entity;
         }
-        private IQueryable<T> GetInclude()
+        protected IQueryable<T> GetInclude()
         {
             return DbSetInclude != null ? DbSetInclude : _dbSet;
         }
@@ -52,18 +52,7 @@ namespace DictionaryOfWords.DAL.Repositories
         {
             return await GetInclude().ToListAsync();
         }
-
-        public async Task<List<T>> GetAllOfIdAsync(List<int> idList)
-        {
-            return await GetInclude().Where(x => idList.Any(n => n == x.Id)).ToListAsync();
-        }
-
-        public virtual T GetById(int id)
-        {
-            return GetInclude().FirstOrDefault(x => x.Id == id);
-        }
-
-        public void Update(T entity)
+                public void Update(T entity)
         {
             _dbSet.Update(entity);
         }
@@ -79,6 +68,26 @@ namespace DictionaryOfWords.DAL.Repositories
             {
                 _dbSet.Remove(entityList[i]);
             }
+        }
+    }
+
+    public class RepositoryBase<T, TId> : RepositoryBase<T>, IRepository<T, TId>
+        where T : class, IEntity<TId>
+        where TId : IEquatable<TId>
+    {
+        public RepositoryBase(DbContextDictionaryOfWords contextDictionaryOfWords)
+            : base(contextDictionaryOfWords)
+        {
+        }
+
+        public async Task<List<T>> GetAllOfIdAsync(List<TId> idList)
+        {
+            return await GetInclude().Where(x => idList.Any(n => x.Id.Equals(n))).ToListAsync();
+        }
+
+        public virtual T GetById(TId id)
+        {
+            return GetInclude().FirstOrDefault(x => x.Id.Equals(id));
         }
     }
 }

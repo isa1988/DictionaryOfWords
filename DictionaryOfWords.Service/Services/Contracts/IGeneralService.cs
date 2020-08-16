@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DictionaryOfWords.Service.Services.Contracts
 {
     public interface IGeneralService<TBase, TDto, TFilter> 
-        where TBase : EntityBase
+        where TBase : IEntity
         where TFilter : FilterBaseDto
     {
         /// <summary>
@@ -18,28 +18,7 @@ namespace DictionaryOfWords.Service.Services.Contracts
         /// <returns></returns>
         Task<EntityOperationResult<TBase>> CreateItemAsync(TDto basketCreateDto);
         
-        /// <summary>
-        /// Удалить запись из базы
-        /// </summary>
-        /// <param name="id">Идентификатор записи</param>
-        /// <returns></returns>
-        Task<EntityOperationResult<TBase>> DeleteItemAsync(int id);
-
-
-        /// <summary>
-        /// Удалить запись из базы несколько записей
-        /// </summary>
-        /// <param name="id">Идентификатор записи</param>
-        /// <returns></returns>
-        Task<EntityOperationResult<TBase>> DeleteItemAsync(List<int> idList);
-
-        /// <summary>
-        /// Вернуть конкретный объект из базы
-        /// </summary>
-        /// <param name="id">Идентификатор записи</param>
-        /// <returns></returns>
-        TDto GetByID(int id);
-
+        
         /// <summary>
         /// Вернуть все записи
         /// </summary>
@@ -77,4 +56,33 @@ namespace DictionaryOfWords.Service.Services.Contracts
         /// <returns></returns>
         List<TDto> GetAllOfPageFilter(TFilter filter, int pageNumber, int rowCount);
     }
+
+    public interface IGeneralServiceWithId<TBase, TDto, TFilter> : IGeneralService<TBase, TDto, TFilter>
+        where TBase : IEntity
+        where TFilter : FilterBaseDto
+    {
+
+
+        /// <summary>
+        /// Удалить запись из базы
+        /// </summary>
+        /// <param name="id">Идентификатор записи</param>
+        /// <returns></returns>
+        Task<EntityOperationResult<TBase>> DeleteItemAsync(int id);
+
+        /// <summary>
+        /// Удалить запись из базы несколько записей
+        /// </summary>
+        /// <param name="id">Идентификатор записи</param>
+        /// <returns></returns>
+        Task<EntityOperationResult<TBase>> DeleteItemAsync(List<int> idList);
+        
+        /// <summary>
+        /// Вернуть конкретный объект из базы
+        /// </summary>
+        /// <param name="id">Идентификатор записи</param>
+        /// <returns></returns>
+        TDto GetByID(int id);
+    }
+
 }

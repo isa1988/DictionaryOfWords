@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DictionaryOfWords.Service.Dtos.FilterDto
 {
-    public abstract class FilterBaseDto
+    public interface FilterBaseDto
     {
     }
 }

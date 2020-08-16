@@ -15,8 +15,6 @@ namespace DictionaryOfWords.DI
     {
         public IContainer Build(IServiceCollection services)
         {
-            Service.AssemblyRunner.Run();
-
             var builder = new ContainerBuilder();
             builder.Populate(services);
             var assemblies = AppDomain.CurrentDomain
@@ -41,7 +39,7 @@ namespace DictionaryOfWords.DI
         private void RepositoriesRegister(ref ContainerBuilder builder, Assembly[] assemblies)
         {
             builder.RegisterGeneric(typeof(RepositoryBase<>))
-                .As(typeof(IRepositoryBase<>));
+                .As(typeof(IRepository<>));
 
             var dataAssembly = assemblies.FirstOrDefault(t => t.FullName.ToLower().Contains("dictionaryofwords.dal"));
             builder.RegisterAssemblyTypes(dataAssembly)

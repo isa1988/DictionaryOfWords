@@ -12,25 +12,22 @@ using System.Threading.Tasks;
 namespace DictionaryOfWords.Service.Services
 {
     public abstract class GeneralService<TBase, TDto, TFilter> : IGeneralService<TBase, TDto, TFilter> 
-        where TBase : EntityBase
+        where TBase : class, IEntity
         where TFilter : FilterBaseDto
     {
-        public GeneralService(IUnitOfWorkFactory unitOfWorkFactory, TDto empty, IMapper mapper)
+        public GeneralService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
         {
             if (unitOfWorkFactory == null)
                 throw new ArgumentNullException(nameof(unitOfWorkFactory));
-            if (empty == null)
-                throw new ArgumentNullException(nameof(empty));
+            
             if (mapper == null)
                 throw new ArgumentNullException(nameof(mapper));
 
             _unitOfWorkFactory = unitOfWorkFactory;
-            _dtoEmpty = empty;
             _mapper = mapper;
         }
 
         protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
-        private readonly TDto _dtoEmpty;
         protected readonly IMapper _mapper;
 
 
@@ -59,6 +56,59 @@ namespace DictionaryOfWords.Service.Services
                 }
             }
         }
+               
+        public virtual List<TDto> GetAllOfPage(int pageNumber, int rowCount)
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<TBase> valueBaseList = unitOfWork.GetRepository<TBase>().GetAllOfPage(pageNumber, rowCount);
+                if (valueBaseList == null || valueBaseList.Count == 0)
+                {
+                    return new List<TDto>();
+                }
+                List<TDto> retList = _mapper.Map<List<TDto>>(valueBaseList);
+                return retList;
+            }
+        }
+
+        public virtual List<TDto> GetAll()
+        {
+            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
+            {
+                List<TBase> valueBaseList = unitOfWork.GetRepository<TBase>().GetAll();
+                if (valueBaseList == null || valueBaseList.Count == 0)
+                {
+                    return new List<TDto>();
+                }
+                List<TDto> retList = _mapper.Map<List<TDto>>(valueBaseList);
+                return retList;
+            }
+        }
+
+        public abstract List<TDto> GetAllFilter(TFilter filter);
+
+        public virtual int GetCountOfAllFilter(TFilter filter)
+        {
+            var retList = GetAllFilter(filter);
+            return retList.Count;
+        }
+
+        public abstract List<TDto> GetAllOfPageFilter(TFilter filter, int pageNumber, int rowCount);
+    }
+
+    public abstract class GeneralServiceWithId<TBase, TDto, TFilter> : GeneralService<TBase, TDto, TFilter>,
+        IGeneralServiceWithId<TBase, TDto, TFilter>
+        where TBase : class, IEntity<int>
+        where TFilter : FilterBaseDto
+    {
+        private readonly TDto _dtoEmpty;
+        public GeneralServiceWithId(IUnitOfWorkFactory unitOfWorkFactory, TDto empty, IMapper mapper)
+            : base(unitOfWorkFactory, mapper)
+        {
+            if (empty == null)
+                throw new ArgumentNullException(nameof(empty));
+            _dtoEmpty = empty;
+        }
 
         protected abstract string CkeckBefforDelet(TBase value);
 
@@ -68,7 +118,7 @@ namespace DictionaryOfWords.Service.Services
             {
                 try
                 {
-                    TBase value = unitOfWork.GetRepository<TBase>().GetById(id);
+                    TBase value = unitOfWork.GetRepository<TBase, int>().GetById(id);
                     if (value == null)
                     {
                         return EntityOperationResult<TBase>.Failure().AddError("Не найдена запись");
@@ -101,7 +151,7 @@ namespace DictionaryOfWords.Service.Services
                     {
                         return EntityOperationResult<TBase>.Failure().AddError("Не задан лист с id");
                     }
-                    List<TBase> listVal = await unitOfWork.GetRepository<TBase>().GetAllOfIdAsync(idList);
+                    List<TBase> listVal = await unitOfWork.GetRepository<TBase, int>().GetAllOfIdAsync(idList);
                     if (listVal == null || listVal.Count == 0)
                     {
                         return EntityOperationResult<TBase>.Failure().AddError("Не найдена запись");
@@ -123,54 +173,16 @@ namespace DictionaryOfWords.Service.Services
             }
         }
 
-        public virtual List<TDto> GetAllOfPage(int pageNumber, int rowCount)
-        {
-            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
-            {
-                List<TBase> valueBaseList = unitOfWork.GetRepository<TBase>().GetAllOfPage(pageNumber, rowCount);
-                if (valueBaseList == null || valueBaseList.Count == 0)
-                {
-                    return new List<TDto>();
-                }
-                List<TDto> retList = _mapper.Map<List<TDto>>(valueBaseList);
-                return retList;
-            }
-        }
-
-        public virtual List<TDto> GetAll()
-        {
-            using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
-            {
-                List<TBase> valueBaseList = unitOfWork.GetRepository<TBase>().GetAll();
-                if (valueBaseList == null || valueBaseList.Count == 0)
-                {
-                    return new List<TDto>();
-                }
-                List<TDto> retList = _mapper.Map<List<TDto>>(valueBaseList);
-                return retList;
-            }
-        }
-
         public virtual TDto GetByID(int id)
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                TBase value = unitOfWork.GetRepository<TBase>().GetById(id);
+                TBase value = unitOfWork.GetRepository<TBase, int>().GetById(id);
                 if (value == null) return _dtoEmpty;
                 TDto dto = _mapper.Map<TDto>(value);
                 return dto;
 
             }
         }
-
-        public abstract List<TDto> GetAllFilter(TFilter filter);
-
-        public virtual int GetCountOfAllFilter(TFilter filter)
-        {
-            var retList = GetAllFilter(filter);
-            return retList.Count;
-        }
-
-        public abstract List<TDto> GetAllOfPageFilter(TFilter filter, int pageNumber, int rowCount);
     }
 }

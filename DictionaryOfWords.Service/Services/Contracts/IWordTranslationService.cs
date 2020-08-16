@@ -7,7 +7,7 @@ using System.Text;
 
 namespace DictionaryOfWords.Service.Services.Contracts
 {
-    public interface IWordTranslationService : IGeneralService<WordTranslation, WordTranslationDto, WordTranslationFilterDto>
+    public interface IWordTranslationService : IGeneralServiceWithId<WordTranslation, WordTranslationDto, WordTranslationFilterDto>
     {
 
     }

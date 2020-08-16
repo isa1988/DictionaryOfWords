@@ -4,8 +4,9 @@ using System.Text;
 
 namespace DictionaryOfWords.Core.DataBase
 {
-    public class WordTranslation : EntityBase
+    public class WordTranslation : IEntity<int>
     {
+        public int Id { get; set; }
         public int WordSourceId { get; set; }
         public virtual Word WordSource { get; set; }
         public int WordTranslationId { get; set; }

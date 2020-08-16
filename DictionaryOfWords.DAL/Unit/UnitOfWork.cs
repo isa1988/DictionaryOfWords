@@ -63,9 +63,17 @@ namespace DictionaryOfWords.DAL.Unit
             _transaction = null;
         }
 
-        public IRepositoryBase<TEntity> GetRepository<TEntity>() where TEntity : EntityBase
+        public IRepository<T> GetRepository<T>() 
+            where T : class, IEntity
         {
-            return _repositories.GetOrAdd(typeof(TEntity), (object)new RepositoryBase<TEntity>(_contextDictionaryOfWords)) as IRepositoryBase<TEntity>;
+            return _repositories.GetOrAdd(typeof(T), (object)new RepositoryBase<T>(_contextDictionaryOfWords)) as IRepository<T>;
+        }
+
+        public IRepository<T, TId> GetRepository<T, TId>()
+            where T : class, IEntity<TId>
+            where TId : IEquatable<TId>
+        {
+            return _repositories.GetOrAdd(typeof(T), (object)new RepositoryBase<T, TId>(_contextDictionaryOfWords)) as IRepository<T, TId>;
         }
 
         public void RollbackTransaction()

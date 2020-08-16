@@ -9,7 +9,7 @@ using System.Text;
 
 namespace DictionaryOfWords.DAL.Repositories
 {
-    class WordTranslationRepository : RepositoryBase<WordTranslation>, IWordTranslationRepository
+    class WordTranslationRepository : RepositoryBase<WordTranslation, int>, IWordTranslationRepository
     {
         public WordTranslationRepository(DbContextDictionaryOfWords contextDictionaryOfWords) : base(contextDictionaryOfWords)
         {

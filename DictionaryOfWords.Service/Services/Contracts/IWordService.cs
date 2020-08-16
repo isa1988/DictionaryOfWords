@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DictionaryOfWords.Service.Services.Contracts
 {
-    public interface IWordService : IGeneralService<Word, WordDto, WordFilterDto>
+    public interface IWordService : IGeneralServiceWithId<Word, WordDto, WordFilterDto>
     {
         Task<EntityOperationResult<Word>> EditItemAsync(WordDto basketEditDto);
 

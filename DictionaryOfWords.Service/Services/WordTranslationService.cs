@@ -10,7 +10,7 @@ using System.Text;
 
 namespace DictionaryOfWords.Service.Services
 {
-    public class WordTranslationService : GeneralService<WordTranslation, WordTranslationDto, WordTranslationFilterDto>, IWordTranslationService
+    public class WordTranslationService : GeneralServiceWithId<WordTranslation, WordTranslationDto, WordTranslationFilterDto>, IWordTranslationService
     {
         public WordTranslationService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper) : base(unitOfWorkFactory, new WordTranslationDto(), mapper)
         {
@@ -86,7 +86,7 @@ namespace DictionaryOfWords.Service.Services
         {
             using (var unitOfWork = _unitOfWorkFactory.MakeUnitOfWork())
             {
-                Word value = unitOfWork.GetRepository<Word>().GetById(id);
+                Word value = unitOfWork.GetRepository<Word, int>().GetById(id);
                 if (value == null) return new WordTranslationDto();
                 WordTranslationDto dto = _mapper.Map<WordTranslationDto>(value);
                 return dto;
